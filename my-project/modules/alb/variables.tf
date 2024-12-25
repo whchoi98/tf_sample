@@ -29,6 +29,10 @@ variable "private_instance_2_id" {
 }
 
 variable "common_tags" {
-  description = "Common tags for all resources"
+  description = "Common tags applied to all resources"
   type        = map(string)
+  default     = {
+    Environment = "prod"
+    Owner       = "team-prod"
+  }
 }
