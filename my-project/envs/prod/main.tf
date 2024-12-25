@@ -58,20 +58,6 @@ module "ec2" {
   common_tags      = var.common_tags
 }
 
-module "vpc_endpoints" {
-  source              = "../../modules/vpc-endpoint"
-  vpc_id              = var.vpc_id
-  region              = var.region
-  private_subnet_ids  = [
-    "subnet-0a12345b67890cdef", # Private Subnet 1
-    "subnet-0b23456c78901defg", # Private Subnet 2
-    "subnet-0c34567d89012efgh"  # Private Subnet 3
-  ]
-  security_group_id   = var.ssmsg_security_group_id
-  environment         = var.environment
-  common_tags         = var.common_tags
-}
-
 module "iam_roles" {
   source      = "../../modules/iam/roles"
   name        = "prod"
