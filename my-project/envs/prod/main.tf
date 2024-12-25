@@ -35,6 +35,16 @@ module "routing" {
   attach_subnet_ids   = module.vpc.attach_subnet_ids
 }
 
+data "aws_ami" "amazon_linux_2" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+  }
+}
+
 module "ec2" {
   source           = "../../modules/ec2"
   ami_id           = data.aws_ami.amazon_linux_2.id
