@@ -16,23 +16,3 @@ variable "common_tags" {
     Owner       = "team-prod"
   }
 }
-
-variable "ami_id" {
-  description = "AMI ID for EC2 instances"
-  type        = string
-}
-
-variable "public_subnet_ids" {
-  description = "List of public subnet IDs"
-  type        = list(string)
-}
-
-variable "private_subnet_ids" {
-  description = "List of private subnet IDs"
-  type        = list(string)
-}
-
-variable "vpc_id" {
-  description = "ID of the VPC"
-  type        = string
-}
