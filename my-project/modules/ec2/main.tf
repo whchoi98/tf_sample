@@ -6,7 +6,6 @@ resource "aws_instance" "public_ec2" {
   subnet_id     = element(var.public_subnet_ids, count.index % length(var.public_subnet_ids))
   private_ip    = var.public_fixed_ips[count.index]
 
-
   # Public EC2 Security Group 연결
   security_group_ids = [var.public_ec2_security_group_id]
 
@@ -17,6 +16,9 @@ resource "aws_instance" "public_ec2" {
       Name = "${var.environment}-Public-${var.public_fixed_ips[count.index]}"
     }
   )
+
+  # IAM Instance Profile 연결
+  iam_instance_profile = var.instance_profile  # IAM 인스턴스 프로필 연결
 
   # User Data 스크립트
   user_data = <<-EOF
@@ -45,7 +47,6 @@ resource "aws_instance" "private_ec2" {
   subnet_id     = element(var.private_subnet_ids, count.index % length(var.private_subnet_ids))
   private_ip    = var.private_fixed_ips[count.index]
 
-
   # Private EC2 Security Group 연결
   security_group_ids = [var.private_ec2_security_group_id]
 
@@ -56,6 +57,9 @@ resource "aws_instance" "private_ec2" {
       Name = "${var.environment}-Private-${var.private_fixed_ips[count.index]}"
     }
   )
+
+  # IAM Instance Profile 연결
+  iam_instance_profile = var.instance_profile  # IAM 인스턴스 프로필 연결
 
   # User Data 스크립트
   user_data = <<-EOF

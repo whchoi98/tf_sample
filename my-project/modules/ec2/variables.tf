@@ -48,3 +48,8 @@ variable "common_tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "instance_profile" {
+  description = "IAM Instance Profile ARN"
+  type        = string
+}
