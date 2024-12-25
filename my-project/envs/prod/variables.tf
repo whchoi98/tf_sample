@@ -16,3 +16,32 @@ variable "common_tags" {
     Owner       = "team-prod"
   }
 }
+variable "public_subnet_ids" {
+  description = "List of public subnet IDs"
+  type        = list(string)
+}
+
+variable "private_subnet_ids" {
+  description = "List of private subnet IDs"
+  type        = list(string)
+}
+
+variable "vpc_id" {
+  description = "VPC ID"
+  type        = string
+}
+
+variable "stack_name" {
+  description = "The name of the stack"
+  type        = string
+}
+
+variable "instance_profile" {
+  description = "IAM Instance Profile ARN"
+  type        = string
+}
+
+variable "common_tags" {
+  description = "Common tags for all resources"
+  type        = map(string)
+}

@@ -75,6 +75,10 @@ module "iam_roles" {
   common_tags = var.common_tags
 }
 
+output "ssm_instance_profile" {
+  value = module.iam_roles.ssm_instance_profile
+}
+
 # Security Group 모듈 호출 / Call the Security Group module
 # Security Group 리소스는 VPC Endpoint와 함께 사용됩니다. / Security Groups are used with VPC Endpoints.
 module "security_groups" {
