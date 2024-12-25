@@ -1,15 +1,5 @@
-variable "vpc_id" {
-  description = "ID of the VPC"
-  type        = string
-}
-
 variable "region" {
   description = "AWS Region"
-  type        = string
-}
-
-variable "ssmsg_security_group_id" {
-  description = "Security Group ID for VPC Endpoints"
   type        = string
 }
 
