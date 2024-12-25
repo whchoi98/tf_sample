@@ -24,6 +24,7 @@ module "vpc" {
     "10.0.243.0/24"
   ]
 }
+
 module "routing" {
   source              = "../../modules/routing-table"
   name                = "prod"
@@ -33,37 +34,103 @@ module "routing" {
   private_subnet_ids  = module.vpc.private_subnet_ids
   attach_subnet_ids   = module.vpc.attach_subnet_ids
 }
-module "public_ec2" {
+
+module "ec2" {
   source           = "../../modules/ec2"
   ami_id           = data.aws_ami.amazon_linux_2.id
   instance_type    = "t3.small"
-  subnet_ids       = var.public_subnet_ids
-  fixed_ips        = [
-    "10.0.1.101", "10.0.1.102", # Public Subnet 1
-    "10.0.2.101", "10.0.2.102", # Public Subnet 2
-    "10.0.3.101", "10.0.3.102"  # Public Subnet 3
-  ]
-  key_pair         = var.key_pair
-  instance_profile = var.instance_profile
-  security_group_id = var.public_ec2_sg
-  environment      = var.environment
-  subnet_type      = "public"
-  common_tags      = var.common_tags
-}
-module "private_ec2" {
-  source           = "../../modules/ec2"
-  ami_id           = data.aws_ami.amazon_linux_2.id
-  instance_type    = "t3.small"
-  subnet_ids       = var.private_subnet_ids
-  fixed_ips        = [
+  public_subnet_ids = var.public_subnet_ids
+  private_subnet_ids = var.private_subnet_ids
+  public_fixed_ips  = [
     "10.0.32.101", "10.0.32.102", # Private Subnet 1
     "10.0.64.101", "10.0.64.102", # Private Subnet 2
     "10.0.96.101", "10.0.96.102"  # Private Subnet 3
   ]
-  key_pair         = var.key_pair
+  private_fixed_ips = [
+    "10.0.32.101", "10.0.32.102", # Private Subnet 1
+    "10.0.64.101", "10.0.64.102", # Private Subnet 2
+    "10.0.96.101", "10.0.96.102"  # Private Subnet 3
+  ]
   instance_profile = var.instance_profile
-  security_group_id = var.private_ec2_sg
+  public_ec2_security_group_id  = module.security_groups.public_ec2_security_group_id
+  private_ec2_security_group_id = module.security_groups.private_ec2_security_group_id
   environment      = var.environment
-  subnet_type      = "private"
   common_tags      = var.common_tags
+}
+
+module "vpc_endpoints" {
+  source              = "../../modules/vpc-endpoint"
+  vpc_id              = var.vpc_id
+  region              = var.region
+  private_subnet_ids  = [
+    "subnet-0a12345b67890cdef", # Private Subnet 1
+    "subnet-0b23456c78901defg", # Private Subnet 2
+    "subnet-0c34567d89012efgh"  # Private Subnet 3
+  ]
+  security_group_id   = var.ssmsg_security_group_id
+  environment         = var.environment
+  common_tags         = var.common_tags
+}
+
+module "iam_roles" {
+  source      = "../../modules/iam/roles"
+  name        = "prod"
+  environment = var.environment
+  common_tags = var.common_tags
+}
+
+# Security Group 모듈 호출 / Call the Security Group module
+# Security Group 리소스는 VPC Endpoint와 함께 사용됩니다. / Security Groups are used with VPC Endpoints.
+module "security_groups" {
+  source      = "../../modules/security-group"
+  vpc_id      = var.vpc_id
+  environment = var.environment
+  common_tags = var.common_tags
+}
+
+# VPC Endpoint 모듈 호출 / Call the VPC Endpoint module
+# SSM 및 SSM Messages VPC Endpoint를 생성합니다. / Create SSM and SSM Messages VPC Endpoints.
+module "vpc_endpoints" {
+  source              = "../../modules/vpc-endpoint"
+  
+  # VPC ID 및 AWS 리전 정보 / VPC ID and AWS Region
+  vpc_id              = var.vpc_id
+  region              = var.region
+  
+  # Private Subnet ID 목록 / List of Private Subnet IDs
+  private_subnet_ids  = var.private_subnet_ids
+  
+  # Security Group ID (SSMSG) / Security Group ID (SSMSG)
+  ssm_security_group_id = module.security_groups.ssm_security_group_id
+  
+  # 환경 정보 및 공통 태그 / Environment information and common tags
+  environment         = var.environment
+  common_tags         = var.common_tags
+}
+
+module "alb" {
+  source = "../../modules/alb"
+
+  # 필수 변수 전달
+  stack_name               = var.stack_name
+  vpc_id                   = var.vpc_id
+  public_subnets           = var.public_subnets
+  alb_security_group_id    = module.security_groups.alb_security_group_id
+  private_instance_1_id    = module.ec2.private_instance_1_id
+  private_instance_2_id    = module.ec2.private_instance_2_id
+  common_tags              = var.common_tags
+}
+
+module "nlb" {
+  source = "../../modules/nlb"
+
+  # 필수 변수 전달
+  stack_name               = var.stack_name
+  vpc_id                   = var.vpc_id
+  public_subnets           = var.public_subnets
+  private_subnets          = var.private_subnets
+  nlb_security_group_id    = module.security_groups.nlb_security_group_id
+  private_instance_1_id    = module.ec2.private_instance_1_id
+  private_instance_2_id    = module.ec2.private_instance_2_id
+  common_tags              = var.common_tags
 }
