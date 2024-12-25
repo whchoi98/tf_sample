@@ -8,11 +8,6 @@ variable "instance_type" {
   type        = string
 }
 
-variable "key_pair" {
-  description = "Key pair name for SSH access"
-  type        = string
-}
-
 variable "public_subnet_ids" {
   description = "List of public subnet IDs"
   type        = list(string)
