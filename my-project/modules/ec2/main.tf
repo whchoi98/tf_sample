@@ -5,7 +5,7 @@ resource "aws_instance" "public_ec2" {
   instance_type = var.instance_type           # 인스턴스 타입
   subnet_id     = element(var.public_subnet_ids, count.index % length(var.public_subnet_ids))
   private_ip    = var.public_fixed_ips[count.index]
-  key_name      = var.key_pair
+
 
   # Public EC2 Security Group 연결
   security_group_ids = [var.public_ec2_security_group_id]
@@ -44,7 +44,7 @@ resource "aws_instance" "private_ec2" {
   instance_type = var.instance_type            # 인스턴스 타입
   subnet_id     = element(var.private_subnet_ids, count.index % length(var.private_subnet_ids))
   private_ip    = var.private_fixed_ips[count.index]
-  key_name      = var.key_pair
+
 
   # Private EC2 Security Group 연결
   security_group_ids = [var.private_ec2_security_group_id]
