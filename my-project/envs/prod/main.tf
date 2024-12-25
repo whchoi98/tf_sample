@@ -51,7 +51,7 @@ module "ec2" {
     "10.0.64.101", "10.0.64.102", # Private Subnet 2
     "10.0.96.101", "10.0.96.102"  # Private Subnet 3
   ]
-  instance_profile = var.instance_profile
+  instance_profile = aws_iam_instance_profile.ssm_instance_profile.arn  # IAM Instance Profile ARN
   public_ec2_security_group_id  = module.security_groups.public_ec2_security_group_id
   private_ec2_security_group_id = module.security_groups.private_ec2_security_group_id
   environment      = var.environment
