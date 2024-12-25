@@ -25,7 +25,7 @@ module "vpc" {
   ]
 }
 module "routing" {
-  source              = "../../modules/routing"
+  source              = "../../modules/routing-table"
   name                = "prod"
   environment         = "production"
   vpc_id              = module.vpc.vpc_id
