@@ -8,38 +8,43 @@ variable "instance_type" {
   type        = string
 }
 
-variable "subnet_ids" {
-  description = "List of subnet IDs for EC2 instances"
-  type        = list(string)
-}
-
-variable "fixed_ips" {
-  description = "List of fixed IPs for EC2 instances"
-  type        = list(string)
-}
-
 variable "key_pair" {
-  description = "Key pair name for EC2 instances"
+  description = "Key pair name for SSH access"
   type        = string
 }
 
-variable "instance_profile" {
-  description = "IAM instance profile for EC2 instances"
+variable "public_subnet_ids" {
+  description = "List of public subnet IDs"
+  type        = list(string)
+}
+
+variable "private_subnet_ids" {
+  description = "List of private subnet IDs"
+  type        = list(string)
+}
+
+variable "public_fixed_ips" {
+  description = "List of fixed private IPs for Public Subnet EC2 instances"
+  type        = list(string)
+}
+
+variable "private_fixed_ips" {
+  description = "List of fixed private IPs for Private Subnet EC2 instances"
+  type        = list(string)
+}
+
+variable "public_ec2_security_group_id" {
+  description = "Security group ID for Public EC2 instances"
   type        = string
 }
 
-variable "security_group_id" {
-  description = "Security group for EC2 instances"
+variable "private_ec2_security_group_id" {
+  description = "Security group ID for Private EC2 instances"
   type        = string
 }
 
 variable "environment" {
   description = "Environment name (e.g., dev, staging, prod)"
-  type        = string
-}
-
-variable "subnet_type" {
-  description = "Type of subnet (public or private)"
   type        = string
 }
 
