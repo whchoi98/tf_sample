@@ -9,7 +9,7 @@ resource "aws_internet_gateway" "main" {
 
 # NAT Gateway 생성
 resource "aws_eip" "nat" {
-  vpc = true
+  domain = "vpc"
   tags = {
     Name        = "${var.name}-nat-eip"
     Environment = var.environment
