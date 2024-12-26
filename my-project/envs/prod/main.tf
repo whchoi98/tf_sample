@@ -117,10 +117,9 @@ module "security_groups" {
 # SSM 및 SSM Messages VPC Endpoint를 생성합니다. / Creates SSM and SSM Messages VPC Endpoints.
 module "vpc_endpoints" {
   source              = "../../modules/vpc-endpoint"
-  
-  vpc_id              = var.vpc_id                     # VPC ID
+  vpc_id              = module.vpc.vpc_id             # VPC 모듈 출력값 참조 / Refer VPC module output
   region              = var.region                     # AWS 리전 / AWS Region
-  private_subnet_ids  = var.private_subnet_ids          # 프라이빗 서브넷 ID / Private subnet IDs
+  private_subnet_ids  = module.vpc.private_subnet_ids  # VPC 모듈의 프라이빗 서브넷 출력 참조 / Refer private subnets from VPC module
   ssm_security_group_id = module.security_groups.ssm_security_group_id  # SSM 보안 그룹 ID / SSM security group ID
   environment         = var.environment                # 환경 이름 / Environment name
   common_tags         = var.common_tags                # 공통 태그 / Common tags
