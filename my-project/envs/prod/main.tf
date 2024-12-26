@@ -55,7 +55,6 @@ data "aws_ami" "amazon_linux_2" {
 }
 
 # EC2 모듈 호출 / Call the EC2 module
-# 퍼블릭 및 프라이빗 EC2 인스턴스를 생성합니다. / Creates public and private EC2 instances.
 module "ec2" {
   source              = "../../modules/ec2"
   ami_id              = data.aws_ami.amazon_linux_2.id  # Amazon Linux 2 AMI ID
@@ -83,7 +82,8 @@ module "ec2" {
     "10.0.96.101", "10.0.96.102"
   ]
   
-  instance_profile    = aws_iam_instance_profile.ssm_instance_profile.arn # IAM Instance Profile ARN
+  # IAM Instance Profile ARN을 iam_roles 모듈의 출력값으로 수정
+  instance_profile    = module.iam_roles.ssm_instance_profile_arn # SSM Instance Profile ARN
   public_ec2_security_group_id  = module.security_groups.public_ec2_security_group_id  # 퍼블릭 보안 그룹 ID / Public security group ID
   private_ec2_security_group_id = module.security_groups.private_ec2_security_group_id # 프라이빗 보안 그룹 ID / Private security group ID
   environment         = var.environment            # 환경 이름 / Environment name
