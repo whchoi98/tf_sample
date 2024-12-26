@@ -62,7 +62,7 @@ module "ec2" {
   instance_type       = "t3.small"                     # 인스턴스 타입 / Instance type
   
   # 퍼블릭 서브넷 ID 및 고정 IP / Public subnet IDs and fixed IPs
-  public_subnet_ids   = var.public_subnet_ids          # 퍼블릭 서브넷 ID / Public subnet IDs
+  public_subnet_ids   = module.routing.public_route_table_ids  # VPC에서 퍼블릭 서브넷 ID를 참조 / Refer public subnet IDs from VPC module
   public_fixed_ips    = [
     # Public Subnet 1
     "10.0.1.101", "10.0.1.102",
@@ -73,7 +73,7 @@ module "ec2" {
   ]
   
   # 프라이빗 서브넷 ID 및 고정 IP / Private subnet IDs and fixed IPs
-  private_subnet_ids  = var.private_subnet_ids         # 프라이빗 서브넷 ID / Private subnet IDs
+  private_subnet_ids  = module.routing.private_route_table_ids # VPC에서 프라이빗 서브넷 ID를 참조 / Refer private subnet IDs from VPC module
   private_fixed_ips   = [
     # Private Subnet 1
     "10.0.32.101", "10.0.32.102",
