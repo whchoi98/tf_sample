@@ -64,22 +64,22 @@ module "ec2" {
   public_subnet_ids       = module.vpc.public_subnet_ids    # VPC 모듈에서 퍼블릭 서브넷 ID 참조 / Refer public subnet IDs from VPC module
   public_fixed_ips        = [
     # Public Subnet 1
-    "10.0.1.101", "10.0.1.102",
+    "10.0.1.11", "10.0.1.12",
     # Public Subnet 2
-    "10.0.2.101", "10.0.2.102",
+    "10.0.2.11", "10.0.2.12",
     # Public Subnet 3
-    "10.0.3.101", "10.0.3.102"
+    "10.0.3.11", "10.0.3.12"
   ]
 
   # 프라이빗 서브넷 ID 및 고정 IP / Private subnet IDs and fixed IPs
   private_subnet_ids      = module.vpc.private_subnet_ids   # VPC 모듈에서 프라이빗 서브넷 ID 참조 / Refer private subnet IDs from VPC module
   private_fixed_ips       = [
     # Private Subnet 1
-    "10.0.32.101", "10.0.32.102",
+    "10.0.32.11", "10.0.32.12",
     # Private Subnet 2
-    "10.0.64.101", "10.0.64.102",
+    "10.0.64.11", "10.0.64.12",
     # Private Subnet 3
-    "10.0.96.101", "10.0.96.102"
+    "10.0.96.11", "10.0.96.12"
   ]
 
   # IAM Instance Profile 이름을 iam_roles 모듈 출력값으로 지정 / Specify IAM Instance Profile name from iam_roles module output
