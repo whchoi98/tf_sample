@@ -130,12 +130,12 @@ module "vpc_endpoints" {
 module "alb" {
   source                   = "../../modules/alb"
   stack_name               = var.stack_name           # 스택 이름 / Stack name
-  vpc_id                   = var.vpc_id               # VPC ID
-  public_subnets           = var.public_subnets       # 퍼블릭 서브넷 ID / Public subnet IDs
+  vpc_id                   = module.vpc.vpc_id        # VPC 모듈 출력값 참조 / Refer VPC module output
+  public_subnets           = module.vpc.public_subnet_ids  # VPC 모듈의 퍼블릭 서브넷 출력 참조 / Refer public subnets from VPC module
   alb_security_group_id    = module.security_groups.alb_security_group_id  # ALB 보안 그룹 ID / ALB security group ID
   private_instance_1_id    = module.ec2.private_instance_1_id  # 프라이빗 인스턴스 1 ID / Private instance 1 ID
   private_instance_2_id    = module.ec2.private_instance_2_id  # 프라이빗 인스턴스 2 ID / Private instance 2 ID
-  common_tags              = var.common_tags           # 공통 태그 / Common tags
+  common_tags              = var.common_tags          # 공통 태그 / Common tags
 }
 
 # NLB 모듈 호출 / Call the NLB module
