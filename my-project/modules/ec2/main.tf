@@ -6,7 +6,7 @@ resource "aws_instance" "public_ec2" {
   ami           = var.ami_id                  # Amazon Linux 2 AMI ID
   instance_type = var.instance_type           # EC2 인스턴스 타입 / EC2 instance type
   iam_instance_profile = var.instance_profile
-  subnet_id     = element(var.public_subnet_ids, count.index % length(var.public_subnet_ids)) 
+  subnet_id     = element(var.public_subnet_ids, count.index / 2)
   # 각 퍼블릭 서브넷에 인스턴스를 분배 / Distributes instances across public subnets
   private_ip    = var.public_fixed_ips[count.index] 
   # 고정된 IP를 사용하여 EC2 설정 / Configures EC2 with fixed IPs
@@ -52,7 +52,7 @@ resource "aws_instance" "private_ec2" {
   ami           = var.ami_id                   # Amazon Linux 2 AMI ID
   instance_type = var.instance_type            # EC2 인스턴스 타입 / EC2 instance type
   iam_instance_profile = var.instance_profile
-  subnet_id     = element(var.private_subnet_ids, count.index % length(var.private_subnet_ids)) 
+  subnet_id     = element(var.public_subnet_ids, count.index / 2)
   # 각 프라이빗 서브넷에 인스턴스를 분배 / Distributes instances across private subnets
   private_ip    = var.private_fixed_ips[count.index] 
   # 고정된 IP를 사용하여 EC2 설정 / Configures EC2 with fixed IPs
