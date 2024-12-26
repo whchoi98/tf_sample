@@ -205,3 +205,71 @@ resource "aws_security_group" "private_ec2" {
     }
   )
 }
+
+# Aurora 보안 그룹 / Aurora Security Group
+resource "aws_security_group" "aurora" {
+  name        = "${var.environment}-Aurora-SG"
+  description = "Allow inbound MySQL/Aurora traffic"
+  vpc_id      = var.vpc_id
+
+  # Aurora/MySQL 포트 허용 / Allow Aurora/MySQL port
+  ingress {
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Outbound 모든 트래픽 허용 / Allow all outbound traffic
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "${var.environment}-Aurora-SG"
+    }
+  )
+}
+
+# ElastiCache 보안 그룹 / ElastiCache Security Group
+resource "aws_security_group" "elasticache" {
+  name        = "${var.environment}-ElastiCache-SG"
+  description = "Allow inbound traffic for ElastiCache Redis or Memcached"
+  vpc_id      = var.vpc_id
+
+  # Redis 포트 허용 / Allow Redis port
+  ingress {
+    from_port   = 6379
+    to_port     = 6379
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Memcached 포트 허용 (필요 시 활성화) / Allow Memcached port (uncomment if needed)
+  # ingress {
+  #   from_port   = 11211
+  #   to_port     = 11211
+  #   protocol    = "tcp"
+  #   cidr_blocks = ["0.0.0.0/0"]
+  # }
+
+  # Outbound 모든 트래픽 허용 / Allow all outbound traffic
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "${var.environment}-ElastiCache-SG"
+    }
+  )
+}

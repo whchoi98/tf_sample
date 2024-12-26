@@ -37,3 +37,19 @@ output "private_ec2_security_group_id" {
   description = "ID of the Private EC2 Security Group" # 프라이빗 EC2 보안 그룹 ID
   value       = aws_security_group.private_ec2.id     # 프라이빗 EC2 보안 그룹의 ID / ID of the Private EC2 Security Group
 }
+
+# Output: Aurora 보안 그룹 ID / Aurora Security Group ID
+# 생성된 Aurora 보안 그룹의 ID를 출력합니다.
+# Outputs the ID of the created Aurora Security Group.
+output "aurora_security_group_id" {
+  description = "ID of the Aurora Security Group" # Aurora 보안 그룹 ID
+  value       = aws_security_group.aurora.id     # Aurora 보안 그룹의 ID / ID of the Aurora Security Group
+}
+
+# Output: ElastiCache 보안 그룹 ID / ElastiCache Security Group ID
+# 생성된 ElastiCache 보안 그룹의 ID를 출력합니다.
+# Outputs the ID of the created ElastiCache Security Group.
+output "elasticache_security_group_id" {
+  description = "ID of the ElastiCache Security Group" # ElastiCache 보안 그룹 ID
+  value       = aws_security_group.elasticache.id     # ElastiCache 보안 그룹의 ID / ID of the ElastiCache Security Group
+}

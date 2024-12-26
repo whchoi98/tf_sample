@@ -2,14 +2,13 @@
 # 지정된 CIDR 블록을 기반으로 VPC를 생성합니다.
 # Creates a VPC based on the specified CIDR block.
 resource "aws_vpc" "main" {
-  cidr_block           = var.cidr               # VPC의 CIDR 블록 / CIDR block of the VPC
-  enable_dns_support   = true                   # DNS 지원 활성화 / Enable DNS support
-  enable_dns_hostnames = true                   # DNS 호스트 이름 활성화 / Enable DNS hostnames
+  cidr_block           = var.cidr
+  enable_dns_support   = true
+  enable_dns_hostnames = true
 
-  # 태그 설정 / Tag configuration
   tags = {
-    Name        = "${var.name}-vpc"             # VPC 이름 태그 / VPC name tag
-    Environment = var.environment               # 환경 태그 / Environment tag
+    Name        = "${var.name}-vpc"
+    Environment = var.environment
   }
 }
 
@@ -17,17 +16,16 @@ resource "aws_vpc" "main" {
 # VPC에 퍼블릭 서브넷을 생성합니다.
 # Creates public subnets in the VPC.
 resource "aws_subnet" "public" {
-  count                  = 3                     # 서브넷 수 / Number of subnets
-  vpc_id                 = aws_vpc.main.id       # 연결된 VPC ID / Associated VPC ID
-  cidr_block             = var.public_subnet_cidrs[count.index] # 퍼블릭 서브넷의 CIDR 블록 / CIDR block of public subnets
-  map_public_ip_on_launch = true                 # 퍼블릭 IP 자동 할당 활성화 / Enable automatic public IP assignment
-  availability_zone      = "${var.region}${var.azs[count.index]}" # 가용 영역 지정 / Specify availability zones
+  count                  = 3
+  vpc_id                 = aws_vpc.main.id
+  cidr_block             = var.public_subnet_cidrs[count.index]
+  map_public_ip_on_launch = true
+  availability_zone      = "${var.region}${var.azs[count.index]}"
 
-  # 태그 설정 / Tag configuration
   tags = {
-    Name                         = "${var.name}-public-${count.index + 1}" # 서브넷 이름 태그 / Subnet name tag
-    Environment                  = var.environment                        # 환경 태그 / Environment tag
-    "kubernetes.io/role/elb"     = "1"                                    # EKS 퍼블릭 서브넷 태그 / EKS public subnet tag
+    Name                         = "${var.name}-public-${count.index + 1}"
+    Environment                  = var.environment
+    "kubernetes.io/role/elb"     = "1"
   }
 }
 
@@ -35,16 +33,15 @@ resource "aws_subnet" "public" {
 # VPC에 프라이빗 서브넷을 생성합니다.
 # Creates private subnets in the VPC.
 resource "aws_subnet" "private" {
-  count             = 3                      # 서브넷 수 / Number of subnets
-  vpc_id            = aws_vpc.main.id        # 연결된 VPC ID / Associated VPC ID
-  cidr_block        = var.private_subnet_cidrs[count.index] # 프라이빗 서브넷의 CIDR 블록 / CIDR block of private subnets
-  availability_zone = "${var.region}${var.azs[count.index]}" # 가용 영역 지정 / Specify availability zones
+  count             = 3
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.private_subnet_cidrs[count.index]
+  availability_zone = "${var.region}${var.azs[count.index]}"
 
-  # 태그 설정 / Tag configuration
   tags = {
-    Name                              = "${var.name}-private-${count.index + 1}" # 서브넷 이름 태그 / Subnet name tag
-    Environment                       = var.environment                         # 환경 태그 / Environment tag
-    "kubernetes.io/role/internal-elb" = "1"                                     # EKS 프라이빗 서브넷 태그 / EKS private subnet tag
+    Name                              = "${var.name}-private-${count.index + 1}"
+    Environment                       = var.environment
+    "kubernetes.io/role/internal-elb" = "1"
   }
 }
 
@@ -52,14 +49,50 @@ resource "aws_subnet" "private" {
 # VPC에 Attach 서브넷을 생성합니다.
 # Creates attach subnets in the VPC.
 resource "aws_subnet" "attach" {
-  count             = 3                      # 서브넷 수 / Number of subnets
-  vpc_id            = aws_vpc.main.id        # 연결된 VPC ID / Associated VPC ID
-  cidr_block        = var.attach_subnet_cidrs[count.index] # Attach 서브넷의 CIDR 블록 / CIDR block of attach subnets
-  availability_zone = "${var.region}${var.azs[count.index]}" # 가용 영역 지정 / Specify availability zones
+  count             = 3
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.attach_subnet_cidrs[count.index]
+  availability_zone = "${var.region}${var.azs[count.index]}"
 
-  # 태그 설정 / Tag configuration
   tags = {
-    Name        = "${var.name}-attach-${count.index + 1}" # 서브넷 이름 태그 / Subnet name tag
-    Environment = var.environment                        # 환경 태그 / Environment tag
+    Name        = "${var.name}-attach-${count.index + 1}"
+    Environment = var.environment
+  }
+}
+
+# DB 서브넷 / DB Subnets
+# VPC에 DB 서브넷을 생성합니다.
+# Creates DB subnets in the VPC.
+resource "aws_subnet" "db" {
+  count             = 3
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.db_subnet_cidrs[count.index]
+  availability_zone = "${var.region}${var.azs[count.index]}"
+
+  tags = {
+    Name        = "${var.name}-db-${count.index + 1}"
+    Environment = var.environment
+  }
+}
+
+# Aurora용 DB Subnet Group / DB Subnet Group for Aurora
+resource "aws_db_subnet_group" "aurora" {
+  name       = "${var.name}-aurora-db-subnet-group"
+  subnet_ids = aws_subnet.db[*].id
+
+  tags = {
+    Name        = "${var.name}-aurora-db-subnet-group"
+    Environment = var.environment
+  }
+}
+
+# ElastiCache용 Subnet Group / Subnet Group for ElastiCache
+resource "aws_elasticache_subnet_group" "elasticache" {
+  name       = "${var.name}-elasticache-subnet-group"
+  subnet_ids = aws_subnet.db[*].id
+
+  tags = {
+    Name        = "${var.name}-elasticache-subnet-group"
+    Environment = var.environment
   }
 }
