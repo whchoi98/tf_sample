@@ -14,9 +14,10 @@ output "ssm_instance_profile_arn" {
   value       = aws_iam_instance_profile.ssm_instance_profile.arn # SSM IAM 인스턴스 프로파일의 ARN / ARN of the SSM IAM instance profile
 }
 
-# Output: SSM 인스턴스 프로파일 / SSM Instance Profile
-# 모듈에서 생성된 SSM 인스턴스 프로파일을 출력합니다.
-# Outputs the SSM instance profile created by the module.
-output "ssm_instance_profile" {
-  value = module.iam_roles.ssm_instance_profile # SSM 인스턴스 프로파일 / SSM instance profile
+# Output: SSM 인스턴스 프로파일 이름 / SSM Instance Profile Name
+# 생성된 SSM 인스턴스 프로파일의 이름을 출력합니다.
+# Outputs the name of the created SSM instance profile.
+output "ssm_instance_profile_name" {
+  description = "Name of the SSM Instance Profile" # SSM 인스턴스 프로파일의 이름
+  value       = aws_iam_instance_profile.ssm_instance_profile.name # SSM IAM 인스턴스 프로파일의 이름 / Name of the SSM IAM instance profile
 }
