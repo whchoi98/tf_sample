@@ -143,9 +143,9 @@ module "alb" {
 module "nlb" {
   source                   = "../../modules/nlb"
   stack_name               = var.stack_name           # 스택 이름 / Stack name
-  vpc_id                   = var.vpc_id               # VPC ID
-  public_subnets           = var.public_subnets       # 퍼블릭 서브넷 ID / Public subnet IDs
-  private_subnets          = var.private_subnets      # 프라이빗 서브넷 ID / Private subnet IDs
+  vpc_id                   = module.vpc.vpc_id        # VPC 모듈 출력값 참조 / Refer VPC module output
+  public_subnets           = module.vpc.public_subnet_ids  # VPC 모듈의 퍼블릭 서브넷 출력 참조 / Refer public subnets from VPC module
+  private_subnets          = module.vpc.private_subnet_ids # VPC 모듈의 프라이빗 서브넷 출력 참조 / Refer private subnets from VPC module
   nlb_security_group_id    = module.security_groups.nlb_security_group_id  # NLB 보안 그룹 ID / NLB security group ID
   private_instance_1_id    = module.ec2.private_instance_1_id  # 프라이빗 인스턴스 1 ID / Private instance 1 ID
   private_instance_2_id    = module.ec2.private_instance_2_id  # 프라이빗 인스턴스 2 ID / Private instance 2 ID
