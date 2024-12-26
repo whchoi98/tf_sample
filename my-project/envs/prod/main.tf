@@ -1,23 +1,28 @@
+# VPC 모듈 호출 / Call the VPC module
+# VPC와 관련된 리소스를 생성합니다. / Creates resources related to VPC.
 module "vpc" {
   source              = "../../modules/vpc"
-  name                = "prod"
-  environment         = "production"
-  region              = "ap-northeast-2"
-  azs                 = ["a", "b", "c"]
-  cidr                = "10.0.0.0/16"
+  name                = "prod"                     # VPC 이름 / VPC name
+  environment         = "production"              # 환경 이름 / Environment name
+  region              = "ap-northeast-2"          # AWS 리전 / AWS Region
+  azs                 = ["a", "b", "c"]           # 가용 영역 / Availability Zones
+  cidr                = "10.0.0.0/16"             # VPC CIDR 블록 / VPC CIDR block
 
+  # 퍼블릭 서브넷 CIDR 목록 / List of public subnet CIDRs
   public_subnet_cidrs = [
     "10.0.1.0/24",
     "10.0.2.0/24",
     "10.0.3.0/24"
   ]
 
+  # 프라이빗 서브넷 CIDR 목록 / List of private subnet CIDRs
   private_subnet_cidrs = [
     "10.0.32.0/19",
     "10.0.64.0/19",
     "10.0.96.0/19"
   ]
 
+  # 어태치 서브넷 CIDR 목록 / List of attach subnet CIDRs
   attach_subnet_cidrs = [
     "10.0.241.0/24",
     "10.0.242.0/24",
@@ -25,112 +30,125 @@ module "vpc" {
   ]
 }
 
+# 라우팅 테이블 모듈 호출 / Call the Routing Table module
+# 서브넷별 라우팅 테이블을 생성하고 연결합니다. / Creates and associates routing tables for each subnet.
 module "routing" {
   source              = "../../modules/routing-table"
-  name                = "prod"
-  environment         = "production"
-  vpc_id              = module.vpc.vpc_id
-  public_subnet_ids   = module.vpc.public_subnet_ids
-  private_subnet_ids  = module.vpc.private_subnet_ids
-  attach_subnet_ids   = module.vpc.attach_subnet_ids
+  name                = "prod"                   # 라우팅 테이블 이름 / Routing Table name
+  environment         = "production"            # 환경 이름 / Environment name
+  vpc_id              = module.vpc.vpc_id       # VPC ID
+  public_subnet_ids   = module.vpc.public_subnet_ids  # 퍼블릭 서브넷 ID / Public subnet IDs
+  private_subnet_ids  = module.vpc.private_subnet_ids # 프라이빗 서브넷 ID / Private subnet IDs
+  attach_subnet_ids   = module.vpc.attach_subnet_ids  # 어태치 서브넷 ID / Attach subnet IDs
 }
 
+# 최신 Amazon Linux 2 AMI 데이터 호출 / Fetch the latest Amazon Linux 2 AMI data
 data "aws_ami" "amazon_linux_2" {
-  most_recent = true
-  owners      = ["amazon"]
+  most_recent = true                             # 가장 최근 AMI 선택 / Select the most recent AMI
+  owners      = ["amazon"]                      # Amazon 소유 AMI / AMIs owned by Amazon
 
+  # AMI 이름 필터 / AMI name filter
   filter {
     name   = "name"
     values = ["amzn2-ami-hvm-*-x86_64-gp2"]
   }
 }
 
+# EC2 모듈 호출 / Call the EC2 module
+# 퍼블릭 및 프라이빗 EC2 인스턴스를 생성합니다. / Creates public and private EC2 instances.
 module "ec2" {
-  source           = "../../modules/ec2"
-  ami_id           = data.aws_ami.amazon_linux_2.id
-  instance_type    = "t3.small"
-  public_subnet_ids = var.public_subnet_ids
-  private_subnet_ids = var.private_subnet_ids
-  public_fixed_ips  = [
-    "10.0.32.101", "10.0.32.102", # Private Subnet 1
-    "10.0.64.101", "10.0.64.102", # Private Subnet 2
-    "10.0.96.101", "10.0.96.102"  # Private Subnet 3
+  source              = "../../modules/ec2"
+  ami_id              = data.aws_ami.amazon_linux_2.id  # Amazon Linux 2 AMI ID
+  instance_type       = "t3.small"                     # 인스턴스 타입 / Instance type
+  
+  # 퍼블릭 서브넷 ID 및 고정 IP / Public subnet IDs and fixed IPs
+  public_subnet_ids   = var.public_subnet_ids          # 퍼블릭 서브넷 ID / Public subnet IDs
+  public_fixed_ips    = [
+    # Public Subnet 1
+    "10.0.1.101", "10.0.1.102",
+    # Public Subnet 2
+    "10.0.2.101", "10.0.2.102",
+    # Public Subnet 3
+    "10.0.3.101", "10.0.3.102"
   ]
-  private_fixed_ips = [
-    "10.0.32.101", "10.0.32.102", # Private Subnet 1
-    "10.0.64.101", "10.0.64.102", # Private Subnet 2
-    "10.0.96.101", "10.0.96.102"  # Private Subnet 3
+  
+  # 프라이빗 서브넷 ID 및 고정 IP / Private subnet IDs and fixed IPs
+  private_subnet_ids  = var.private_subnet_ids         # 프라이빗 서브넷 ID / Private subnet IDs
+  private_fixed_ips   = [
+    # Private Subnet 1
+    "10.0.32.101", "10.0.32.102",
+    # Private Subnet 2
+    "10.0.64.101", "10.0.64.102",
+    # Private Subnet 3
+    "10.0.96.101", "10.0.96.102"
   ]
-  instance_profile = aws_iam_instance_profile.ssm_instance_profile.arn  # IAM Instance Profile ARN
-  public_ec2_security_group_id  = module.security_groups.public_ec2_security_group_id
-  private_ec2_security_group_id = module.security_groups.private_ec2_security_group_id
-  environment      = var.environment
-  common_tags      = var.common_tags
+  
+  instance_profile    = module.iam_roles.ssm_instance_profile # IAM 인스턴스 프로파일 ARN
+  public_ec2_security_group_id  = module.security_groups.public_ec2_security_group_id  # 퍼블릭 보안 그룹 ID / Public security group ID
+  private_ec2_security_group_id = module.security_groups.private_ec2_security_group_id # 프라이빗 보안 그룹 ID / Private security group ID
+  environment         = var.environment            # 환경 이름 / Environment name
+  common_tags         = var.common_tags            # 공통 태그 / Common tags
 }
 
+# IAM 역할 모듈 호출 / Call the IAM Roles module
+# EC2 인스턴스용 IAM 역할을 생성합니다. / Creates IAM roles for EC2 instances.
 module "iam_roles" {
   source      = "../../modules/iam/roles"
-  name        = "prod"
-  environment = var.environment
-  common_tags = var.common_tags
+  name        = "prod"               # IAM 역할 이름 / IAM role name
+  environment = var.environment      # 환경 이름 / Environment name
+  common_tags = var.common_tags      # 공통 태그 / Common tags
 }
 
+# SSM 인스턴스 프로파일 출력 / Output the SSM Instance Profile
 output "ssm_instance_profile" {
-  value = module.iam_roles.ssm_instance_profile
+  value = module.iam_roles.ssm_instance_profile # SSM Instance Profile ARN
 }
 
-# Security Group 모듈 호출 / Call the Security Group module
-# Security Group 리소스는 VPC Endpoint와 함께 사용됩니다. / Security Groups are used with VPC Endpoints.
+# 보안 그룹 모듈 호출 / Call the Security Group module
+# Security Group 리소스는 VPC Endpoint와 함께 사용됩니다. / Security groups are used with VPC Endpoints.
 module "security_groups" {
   source      = "../../modules/security-group"
-  vpc_id      = var.vpc_id
-  environment = var.environment
-  common_tags = var.common_tags
+  vpc_id      = var.vpc_id                      # VPC ID
+  environment = var.environment                 # 환경 이름 / Environment name
+  common_tags = var.common_tags                 # 공통 태그 / Common tags
 }
 
 # VPC Endpoint 모듈 호출 / Call the VPC Endpoint module
-# SSM 및 SSM Messages VPC Endpoint를 생성합니다. / Create SSM and SSM Messages VPC Endpoints.
+# SSM 및 SSM Messages VPC Endpoint를 생성합니다. / Creates SSM and SSM Messages VPC Endpoints.
 module "vpc_endpoints" {
   source              = "../../modules/vpc-endpoint"
   
-  # VPC ID 및 AWS 리전 정보 / VPC ID and AWS Region
-  vpc_id              = var.vpc_id
-  region              = var.region
-  
-  # Private Subnet ID 목록 / List of Private Subnet IDs
-  private_subnet_ids  = var.private_subnet_ids
-  
-  # Security Group ID (SSMSG) / Security Group ID (SSMSG)
-  ssm_security_group_id = module.security_groups.ssm_security_group_id
-  
-  # 환경 정보 및 공통 태그 / Environment information and common tags
-  environment         = var.environment
-  common_tags         = var.common_tags
+  vpc_id              = var.vpc_id                     # VPC ID
+  region              = var.region                     # AWS 리전 / AWS Region
+  private_subnet_ids  = var.private_subnet_ids          # 프라이빗 서브넷 ID / Private subnet IDs
+  ssm_security_group_id = module.security_groups.ssm_security_group_id  # SSM 보안 그룹 ID / SSM security group ID
+  environment         = var.environment                # 환경 이름 / Environment name
+  common_tags         = var.common_tags                # 공통 태그 / Common tags
 }
 
+# ALB 모듈 호출 / Call the ALB module
+# ALB 및 관련 리소스를 생성합니다. / Creates the ALB and related resources.
 module "alb" {
-  source = "../../modules/alb"
-
-  # 필수 변수 전달
-  stack_name               = var.stack_name
-  vpc_id                   = var.vpc_id
-  public_subnets           = var.public_subnets
-  alb_security_group_id    = module.security_groups.alb_security_group_id
-  private_instance_1_id    = module.ec2.private_instance_1_id
-  private_instance_2_id    = module.ec2.private_instance_2_id
-  common_tags              = var.common_tags
+  source                   = "../../modules/alb"
+  stack_name               = var.stack_name           # 스택 이름 / Stack name
+  vpc_id                   = var.vpc_id               # VPC ID
+  public_subnets           = var.public_subnets       # 퍼블릭 서브넷 ID / Public subnet IDs
+  alb_security_group_id    = module.security_groups.alb_security_group_id  # ALB 보안 그룹 ID / ALB security group ID
+  private_instance_1_id    = module.ec2.private_instance_1_id  # 프라이빗 인스턴스 1 ID / Private instance 1 ID
+  private_instance_2_id    = module.ec2.private_instance_2_id  # 프라이빗 인스턴스 2 ID / Private instance 2 ID
+  common_tags              = var.common_tags           # 공통 태그 / Common tags
 }
 
+# NLB 모듈 호출 / Call the NLB module
+# NLB 및 관련 리소스를 생성합니다. / Creates the NLB and related resources.
 module "nlb" {
-  source = "../../modules/nlb"
-
-  # 필수 변수 전달
-  stack_name               = var.stack_name
-  vpc_id                   = var.vpc_id
-  public_subnets           = var.public_subnets
-  private_subnets          = var.private_subnets
-  nlb_security_group_id    = module.security_groups.nlb_security_group_id
-  private_instance_1_id    = module.ec2.private_instance_1_id
-  private_instance_2_id    = module.ec2.private_instance_2_id
-  common_tags              = var.common_tags
+  source                   = "../../modules/nlb"
+  stack_name               = var.stack_name           # 스택 이름 / Stack name
+  vpc_id                   = var.vpc_id               # VPC ID
+  public_subnets           = var.public_subnets       # 퍼블릭 서브넷 ID / Public subnet IDs
+  private_subnets          = var.private_subnets      # 프라이빗 서브넷 ID / Private subnet IDs
+  nlb_security_group_id    = module.security_groups.nlb_security_group_id  # NLB 보안 그룹 ID / NLB security group ID
+  private_instance_1_id    = module.ec2.private_instance_1_id  # 프라이빗 인스턴스 1 ID / Private instance 1 ID
+  private_instance_2_id    = module.ec2.private_instance_2_id  # 프라이빗 인스턴스 2 ID / Private instance 2 ID
+  common_tags              = var.common_tags           # 공통 태그 / Common tags
 }

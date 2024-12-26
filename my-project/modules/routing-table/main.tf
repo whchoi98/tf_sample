@@ -1,88 +1,116 @@
-# Internet Gateway 생성
+# Internet Gateway 생성 / Create Internet Gateway
+# VPC와 연결된 인터넷 게이트웨이를 생성합니다.
+# Creates an Internet Gateway associated with the VPC.
 resource "aws_internet_gateway" "main" {
-  vpc_id = var.vpc_id
+  vpc_id = var.vpc_id # 연결된 VPC ID / Associated VPC ID
   tags   = {
-    Name        = "${var.name}-igw"
-    Environment = var.environment
+    Name        = "${var.name}-igw"      # 인터넷 게이트웨이 이름 태그 / Internet Gateway name tag
+    Environment = var.environment        # 환경 태그 / Environment tag
   }
 }
 
-# NAT Gateway 생성
+# NAT Gateway 생성 / Create NAT Gateway
+# 인터넷에 액세스할 수 있도록 NAT 게이트웨이를 생성합니다.
+# Creates a NAT Gateway for private subnet internet access.
+
+# Elastic IP 생성 / Create Elastic IP
+# NAT Gateway에 사용할 Elastic IP를 생성합니다.
+# Creates an Elastic IP for the NAT Gateway.
 resource "aws_eip" "nat" {
-  domain = "vpc"
+  domain = "vpc" # VPC 도메인 / VPC domain
   tags = {
-    Name        = "${var.name}-nat-eip"
-    Environment = var.environment
+    Name        = "${var.name}-nat-eip" # NAT EIP 이름 태그 / NAT EIP name tag
+    Environment = var.environment       # 환경 태그 / Environment tag
   }
 }
 
+# NAT Gateway 생성 / Create NAT Gateway
+# A Zone의 Public Subnet을 사용하여 NAT 게이트웨이를 생성합니다.
+# Creates a NAT Gateway using a Public Subnet in Zone A.
 resource "aws_nat_gateway" "main" {
-  allocation_id = aws_eip.nat.id
-  subnet_id     = var.public_subnet_ids[0] # A Zone의 Public Subnet 사용
+  allocation_id = aws_eip.nat.id # NAT Gateway에 연결된 Elastic IP / Elastic IP associated with the NAT Gateway
+  subnet_id     = var.public_subnet_ids[0] # A Zone의 Public Subnet ID / Public Subnet ID in Zone A
   tags          = {
-    Name        = "${var.name}-nat-gateway"
-    Environment = var.environment
+    Name        = "${var.name}-nat-gateway" # NAT Gateway 이름 태그 / NAT Gateway name tag
+    Environment = var.environment           # 환경 태그 / Environment tag
   }
 }
 
-# 퍼블릭 서브넷별 Route Table 및 라우팅 설정
+# 퍼블릭 서브넷별 Route Table 및 라우팅 설정 / Public Subnet Route Table and Routing
+# 퍼블릭 서브넷에 Route Table을 생성하고, 인터넷 게이트웨이를 통해 트래픽을 라우팅합니다.
+# Creates Route Tables for Public Subnets and routes traffic through the Internet Gateway.
+
+# 퍼블릭 Route Table 생성 / Create Public Route Tables
 resource "aws_route_table" "public" {
-  count  = length(var.public_subnet_ids)
-  vpc_id = var.vpc_id
+  count  = length(var.public_subnet_ids) # 퍼블릭 서브넷 개수만큼 Route Table 생성 / Creates Route Tables for each Public Subnet
+  vpc_id = var.vpc_id                    # 연결된 VPC ID / Associated VPC ID
   tags = {
-    Name        = "${var.name}-public-rt-${count.index + 1}"
-    Environment = var.environment
+    Name        = "${var.name}-public-rt-${count.index + 1}" # Route Table 이름 태그 / Route Table name tag
+    Environment = var.environment                           # 환경 태그 / Environment tag
   }
 }
 
+# 퍼블릭 서브넷에 대한 라우팅 설정 / Configure Routing for Public Subnets
 resource "aws_route" "public_route" {
-  count                 = length(var.public_subnet_ids)
-  route_table_id        = aws_route_table.public[count.index].id
-  destination_cidr_block = "0.0.0.0/0"
-  gateway_id            = aws_internet_gateway.main.id
+  count                 = length(var.public_subnet_ids)  # 퍼블릭 서브넷 개수만큼 라우트 생성 / Creates routes for each Public Subnet
+  route_table_id        = aws_route_table.public[count.index].id # 연결된 Route Table ID / Associated Route Table ID
+  destination_cidr_block = "0.0.0.0/0"                   # 기본 라우트 (인터넷으로 트래픽 전달) / Default route (traffic to the internet)
+  gateway_id            = aws_internet_gateway.main.id   # 인터넷 게이트웨이 ID / Internet Gateway ID
 }
 
+# 퍼블릭 서브넷에 Route Table 연결 / Associate Route Tables with Public Subnets
 resource "aws_route_table_association" "public" {
-  count          = length(var.public_subnet_ids)
-  subnet_id      = var.public_subnet_ids[count.index]
-  route_table_id = aws_route_table.public[count.index].id
+  count          = length(var.public_subnet_ids) # 퍼블릭 서브넷 개수만큼 연결 생성 / Creates associations for each Public Subnet
+  subnet_id      = var.public_subnet_ids[count.index] # 퍼블릭 서브넷 ID / Public Subnet ID
+  route_table_id = aws_route_table.public[count.index].id # 연결된 Route Table ID / Associated Route Table ID
 }
 
-# 프라이빗 서브넷별 Route Table 및 라우팅 설정
+# 프라이빗 서브넷별 Route Table 및 라우팅 설정 / Private Subnet Route Table and Routing
+# 프라이빗 서브넷에 Route Table을 생성하고, NAT 게이트웨이를 통해 트래픽을 라우팅합니다.
+# Creates Route Tables for Private Subnets and routes traffic through the NAT Gateway.
+
+# 프라이빗 Route Table 생성 / Create Private Route Tables
 resource "aws_route_table" "private" {
-  count  = length(var.private_subnet_ids)
-  vpc_id = var.vpc_id
+  count  = length(var.private_subnet_ids) # 프라이빗 서브넷 개수만큼 Route Table 생성 / Creates Route Tables for each Private Subnet
+  vpc_id = var.vpc_id                     # 연결된 VPC ID / Associated VPC ID
   tags = {
-    Name        = "${var.name}-private-rt-${count.index + 1}"
-    Environment = var.environment
+    Name        = "${var.name}-private-rt-${count.index + 1}" # Route Table 이름 태그 / Route Table name tag
+    Environment = var.environment                            # 환경 태그 / Environment tag
   }
 }
 
+# 프라이빗 서브넷에 대한 라우팅 설정 / Configure Routing for Private Subnets
 resource "aws_route" "private_route" {
-  count                 = length(var.private_subnet_ids)
-  route_table_id        = aws_route_table.private[count.index].id
-  destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = aws_nat_gateway.main.id
+  count                 = length(var.private_subnet_ids)  # 프라이빗 서브넷 개수만큼 라우트 생성 / Creates routes for each Private Subnet
+  route_table_id        = aws_route_table.private[count.index].id # 연결된 Route Table ID / Associated Route Table ID
+  destination_cidr_block = "0.0.0.0/0"                   # 기본 라우트 (NAT Gateway로 트래픽 전달) / Default route (traffic to NAT Gateway)
+  nat_gateway_id         = aws_nat_gateway.main.id       # NAT 게이트웨이 ID / NAT Gateway ID
 }
 
+# 프라이빗 서브넷에 Route Table 연결 / Associate Route Tables with Private Subnets
 resource "aws_route_table_association" "private" {
-  count          = length(var.private_subnet_ids)
-  subnet_id      = var.private_subnet_ids[count.index]
-  route_table_id = aws_route_table.private[count.index].id
+  count          = length(var.private_subnet_ids) # 프라이빗 서브넷 개수만큼 연결 생성 / Creates associations for each Private Subnet
+  subnet_id      = var.private_subnet_ids[count.index] # 프라이빗 서브넷 ID / Private Subnet ID
+  route_table_id = aws_route_table.private[count.index].id # 연결된 Route Table ID / Associated Route Table ID
 }
 
-# Attach 서브넷별 Route Table 및 기본 라우팅 설정 (필요에 따라 변경 가능)
+# Attach 서브넷별 Route Table 및 기본 라우팅 설정 / Attach Subnet Route Table and Default Routing
+# Attach 서브넷에 Route Table을 생성하고 연결합니다 (필요에 따라 변경 가능).
+# Creates and associates Route Tables for Attach Subnets (modifiable if needed).
+
+# Attach Route Table 생성 / Create Attach Route Tables
 resource "aws_route_table" "attach" {
-  count  = length(var.attach_subnet_ids)
-  vpc_id = var.vpc_id
+  count  = length(var.attach_subnet_ids) # Attach 서브넷 개수만큼 Route Table 생성 / Creates Route Tables for each Attach Subnet
+  vpc_id = var.vpc_id                    # 연결된 VPC ID / Associated VPC ID
   tags = {
-    Name        = "${var.name}-attach-rt-${count.index + 1}"
-    Environment = var.environment
+    Name        = "${var.name}-attach-rt-${count.index + 1}" # Route Table 이름 태그 / Route Table name tag
+    Environment = var.environment                           # 환경 태그 / Environment tag
   }
 }
 
+# Attach 서브넷에 Route Table 연결 / Associate Route Tables with Attach Subnets
 resource "aws_route_table_association" "attach" {
-  count          = length(var.attach_subnet_ids)
-  subnet_id      = var.attach_subnet_ids[count.index]
-  route_table_id = aws_route_table.attach[count.index].id
+  count          = length(var.attach_subnet_ids) # Attach 서브넷 개수만큼 연결 생성 / Creates associations for each Attach Subnet
+  subnet_id      = var.attach_subnet_ids[count.index] # Attach 서브넷 ID / Attach Subnet ID
+  route_table_id = aws_route_table.attach[count.index].id # 연결된 Route Table ID / Associated Route Table ID
 }

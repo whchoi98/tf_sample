@@ -1,26 +1,31 @@
-# Public Subnet EC2 Instances
+# 퍼블릭 서브넷 EC2 인스턴스 / Public Subnet EC2 Instances
+# 퍼블릭 서브넷에 고정된 IP 목록을 기반으로 EC2 인스턴스를 생성합니다.
+# Creates EC2 instances in public subnets based on a fixed list of IPs.
 resource "aws_instance" "public_ec2" {
-  count         = length(var.public_fixed_ips) # Public Subnet에 고정된 IP 목록의 개수만큼 EC2 생성
-  ami           = var.ami_id                  # AMI ID (Amazon Linux 2)
-  instance_type = var.instance_type           # 인스턴스 타입
-  subnet_id     = element(var.public_subnet_ids, count.index % length(var.public_subnet_ids))
-  private_ip    = var.public_fixed_ips[count.index]
+  count         = length(var.public_fixed_ips) # 고정된 IP 목록 개수만큼 EC2 인스턴스 생성 / Creates EC2 instances for each fixed IP
+  ami           = var.ami_id                  # Amazon Linux 2 AMI ID
+  instance_type = var.instance_type           # EC2 인스턴스 타입 / EC2 instance type
+  subnet_id     = element(var.public_subnet_ids, count.index % length(var.public_subnet_ids)) 
+  # 각 퍼블릭 서브넷에 인스턴스를 분배 / Distributes instances across public subnets
+  private_ip    = var.public_fixed_ips[count.index] 
+  # 고정된 IP를 사용하여 EC2 설정 / Configures EC2 with fixed IPs
 
-  # Public EC2 Security Group 연결
+  # 퍼블릭 EC2에 보안 그룹 연결 / Associates security group for public EC2
   security_group_ids = [var.public_ec2_security_group_id]
 
-  # 태그 및 이름 설정
+  # 리소스 태그 설정 / Resource tags configuration
   tags = merge(
-    var.common_tags,
+    var.common_tags, 
     {
-      Name = "${var.environment}-Public-${var.public_fixed_ips[count.index]}"
+      Name = "${var.environment}-Public-${var.public_fixed_ips[count.index]}" # 환경 기반 이름 생성 / Generates name based on environment
     }
   )
 
-  # IAM Instance Profile 연결
-  iam_instance_profile = var.instance_profile  # IAM 인스턴스 프로필 연결
+  # IAM Instance Profile 연결 / Associates IAM Instance Profile
+  iam_instance_profile = var.instance_profile
 
-  # User Data 스크립트
+  # User Data 스크립트 / User Data script
+  # EC2 인스턴스에 Apache HTTP 서버 및 기타 도구를 설치 / Installs Apache HTTP server and other tools on the EC2 instance
   user_data = <<-EOF
     #!/bin/bash
     sudo yum -y update
@@ -39,29 +44,34 @@ resource "aws_instance" "public_ec2" {
   EOF
 }
 
-# Private Subnet EC2 Instances
+# 프라이빗 서브넷 EC2 인스턴스 / Private Subnet EC2 Instances
+# 프라이빗 서브넷에 고정된 IP 목록을 기반으로 EC2 인스턴스를 생성합니다.
+# Creates EC2 instances in private subnets based on a fixed list of IPs.
 resource "aws_instance" "private_ec2" {
-  count         = length(var.private_fixed_ips) # Private Subnet에 고정된 IP 목록의 개수만큼 EC2 생성
-  ami           = var.ami_id                   # AMI ID (Amazon Linux 2)
-  instance_type = var.instance_type            # 인스턴스 타입
-  subnet_id     = element(var.private_subnet_ids, count.index % length(var.private_subnet_ids))
-  private_ip    = var.private_fixed_ips[count.index]
+  count         = length(var.private_fixed_ips) # 고정된 IP 목록 개수만큼 EC2 인스턴스 생성 / Creates EC2 instances for each fixed IP
+  ami           = var.ami_id                   # Amazon Linux 2 AMI ID
+  instance_type = var.instance_type            # EC2 인스턴스 타입 / EC2 instance type
+  subnet_id     = element(var.private_subnet_ids, count.index % length(var.private_subnet_ids)) 
+  # 각 프라이빗 서브넷에 인스턴스를 분배 / Distributes instances across private subnets
+  private_ip    = var.private_fixed_ips[count.index] 
+  # 고정된 IP를 사용하여 EC2 설정 / Configures EC2 with fixed IPs
 
-  # Private EC2 Security Group 연결
+  # 프라이빗 EC2에 보안 그룹 연결 / Associates security group for private EC2
   security_group_ids = [var.private_ec2_security_group_id]
 
-  # 태그 및 이름 설정
+  # 리소스 태그 설정 / Resource tags configuration
   tags = merge(
-    var.common_tags,
+    var.common_tags, 
     {
-      Name = "${var.environment}-Private-${var.private_fixed_ips[count.index]}"
+      Name = "${var.environment}-Private-${var.private_fixed_ips[count.index]}" # 환경 기반 이름 생성 / Generates name based on environment
     }
   )
 
-  # IAM Instance Profile 연결
-  iam_instance_profile = var.instance_profile  # IAM 인스턴스 프로필 연결
+  # IAM Instance Profile 연결 / Associates IAM Instance Profile
+  iam_instance_profile = var.instance_profile
 
-  # User Data 스크립트
+  # User Data 스크립트 / User Data script
+  # EC2 인스턴스에 Apache HTTP 서버 및 기타 도구를 설치 / Installs Apache HTTP server and other tools on the EC2 instance
   user_data = <<-EOF
     #!/bin/bash
     sudo yum -y update
