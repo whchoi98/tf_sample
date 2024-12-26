@@ -56,13 +56,13 @@ data "aws_ami" "amazon_linux_2" {
 
 # EC2 모듈 호출 / Call the EC2 module
 module "ec2" {
-  source              = "../../modules/ec2"
-  ami_id              = data.aws_ami.amazon_linux_2.id  # Amazon Linux 2 AMI ID
-  instance_type       = "t3.small"                     # 인스턴스 타입 / Instance type
-  
+  source                  = "../../modules/ec2"
+  ami_id                  = data.aws_ami.amazon_linux_2.id  # Amazon Linux 2 AMI ID
+  instance_type           = "t3.small"                     # EC2 인스턴스 타입 / EC2 instance type
+
   # 퍼블릭 서브넷 ID 및 고정 IP / Public subnet IDs and fixed IPs
-  public_subnet_ids   = module.routing.public_route_table_ids  # VPC에서 퍼블릭 서브넷 ID를 참조 / Refer public subnet IDs from VPC module
-  public_fixed_ips    = [
+  public_subnet_ids       = module.vpc.public_subnet_ids    # VPC 모듈에서 퍼블릭 서브넷 ID 참조 / Refer public subnet IDs from VPC module
+  public_fixed_ips        = [
     # Public Subnet 1
     "10.0.1.101", "10.0.1.102",
     # Public Subnet 2
@@ -70,10 +70,10 @@ module "ec2" {
     # Public Subnet 3
     "10.0.3.101", "10.0.3.102"
   ]
-  
+
   # 프라이빗 서브넷 ID 및 고정 IP / Private subnet IDs and fixed IPs
-  private_subnet_ids  = module.routing.private_route_table_ids # VPC에서 프라이빗 서브넷 ID를 참조 / Refer private subnet IDs from VPC module
-  private_fixed_ips   = [
+  private_subnet_ids      = module.vpc.private_subnet_ids   # VPC 모듈에서 프라이빗 서브넷 ID 참조 / Refer private subnet IDs from VPC module
+  private_fixed_ips       = [
     # Private Subnet 1
     "10.0.32.101", "10.0.32.102",
     # Private Subnet 2
@@ -81,39 +81,44 @@ module "ec2" {
     # Private Subnet 3
     "10.0.96.101", "10.0.96.102"
   ]
-  
-  # IAM Instance Profile ARN을 iam_roles 모듈의 출력값으로 수정
-  instance_profile    = module.iam_roles.ssm_instance_profile_arn # SSM Instance Profile ARN
-  public_ec2_security_group_id  = module.security_groups.public_ec2_security_group_id  # 퍼블릭 보안 그룹 ID / Public security group ID
-  private_ec2_security_group_id = module.security_groups.private_ec2_security_group_id # 프라이빗 보안 그룹 ID / Private security group ID
-  environment         = var.environment            # 환경 이름 / Environment name
-  common_tags         = var.common_tags            # 공통 태그 / Common tags
+
+  # IAM Instance Profile 이름을 iam_roles 모듈 출력값으로 지정 / Specify IAM Instance Profile name from iam_roles module output
+  instance_profile_name      = module.iam_roles.ssm_instance_profile_name
+
+  # 보안 그룹 ID / Security Group IDs
+  public_ec2_security_group_id  = module.security_groups.public_ec2_security_group_id  # 퍼블릭 보안 그룹 / Public security group
+  private_ec2_security_group_id = module.security_groups.private_ec2_security_group_id # 프라이빗 보안 그룹 / Private security group
+
+  # 환경 및 태그 / Environment and Tags
+  environment             = var.environment            # 환경 이름 / Environment name
+  common_tags             = var.common_tags            # 공통 태그 / Common tags
 }
 
 # IAM 역할 모듈 호출 / Call the IAM Roles module
-# EC2 인스턴스용 IAM 역할을 생성합니다. / Creates IAM roles for EC2 instances.
+# EC2 인스턴스용 IAM 역할을 생성합니다.
+# Creates IAM roles for EC2 instances.
 module "iam_roles" {
-  source      = "../../modules/iam/roles"
-  name        = "prod"               # IAM 역할 이름 / IAM role name
-  environment = var.environment      # 환경 이름 / Environment name
-  common_tags = var.common_tags      # 공통 태그 / Common tags
+  source      = "../../modules/iam/roles" # IAM 역할 모듈 경로 / Path to the IAM roles module
+  name        = "prod"                    # IAM 역할 이름 / IAM role name
+  environment = var.environment           # 환경 이름 / Environment name
+  common_tags = var.common_tags           # 공통 태그 / Common tags
 }
 
-# SSM 인스턴스 프로파일 출력 / Output the SSM Instance Profile ARN
-output "ssm_instance_profile" {
-  value = module.iam_roles.ssm_instance_profile_arn # SSM Instance Profile ARN
+# SSM 인스턴스 프로파일 출력 / Output the SSM Instance Profile Name
+# EC2에서 사용할 IAM Instance Profile의 이름을 출력합니다.
+# Outputs the name of the IAM Instance Profile for EC2.
+output "ssm_instance_profile_name" {
+  description = "Name of the SSM Instance Profile" # SSM 인스턴스 프로파일의 이름
+  value       = module.iam_roles.ssm_instance_profile_name # SSM Instance Profile Name
 }
 
 # SSM 역할 ARN 출력 / Output the SSM Role ARN
-output "ssm_role" {
-  value = module.iam_roles.ssm_role_arn # SSM Role ARN
+# 생성된 SSM IAM 역할의 ARN을 출력합니다.
+# Outputs the ARN of the created SSM IAM role.
+output "ssm_role_arn" {
+  description = "ARN of the SSM Role" # SSM 역할의 ARN
+  value       = module.iam_roles.ssm_role_arn # SSM Role ARN
 }
-
-# SSM 인스턴스 프로파일 이름 출력 / Output the SSM Instance Profile Name
-output "ssm_instance_profile_name" {
-  value = module.iam_roles.ssm_instance_profile_name # SSM Instance Profile Name
-}
-
 # 보안 그룹 모듈 호출 / Call the Security Group module
 # Security Group 리소스는 VPC Endpoint와 함께 사용됩니다. / Security groups are used with VPC Endpoints.
 module "security_groups" {
