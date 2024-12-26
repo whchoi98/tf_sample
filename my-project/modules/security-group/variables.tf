@@ -22,18 +22,4 @@ variable "common_tags" {
   type        = map(string)                            # 문자열 맵 타입 / Map of strings
   default     = {}                                     # 기본값: 빈 맵 / Default: empty map
 }
-# Output: Aurora 보안 그룹 ID / Aurora Security Group ID
-# 생성된 Aurora 보안 그룹의 ID를 출력합니다.
-# Outputs the ID of the created Aurora Security Group.
-output "aurora_security_group_id" {
-  description = "ID of the Aurora Security Group" # Aurora 보안 그룹 ID
-  value       = aws_security_group.aurora.id     # Aurora 보안 그룹의 ID / ID of the Aurora Security Group
-}
 
-# Output: ElastiCache 보안 그룹 ID / ElastiCache Security Group ID
-# 생성된 ElastiCache 보안 그룹의 ID를 출력합니다.
-# Outputs the ID of the created ElastiCache Security Group.
-output "elasticache_security_group_id" {
-  description = "ID of the ElastiCache Security Group" # ElastiCache 보안 그룹 ID
-  value       = aws_security_group.elasticache.id     # ElastiCache 보안 그룹의 ID / ID of the ElastiCache Security Group
-}
