@@ -45,7 +45,7 @@ resource "aws_lb_target_group" "alb_public_target_group" {
     unhealthy_threshold = 2                          # 비정상 상태 임계값 / Unhealthy threshold
     interval            = 30                         # 헬스 체크 간격 (초) / Health check interval (in seconds)
     timeout             = 5                          # 타임아웃 (초) / Timeout (in seconds)
-    matcher             = { http_code = "200" }      # 성공 코드 / Success code
+    matcher             = "200"                      # 성공 코드 / Success code
   }
 
   # 세션 스티키니스 설정 / Session stickiness settings
@@ -53,9 +53,6 @@ resource "aws_lb_target_group" "alb_public_target_group" {
     type            = "lb_cookie"                    # 스티키니스 유형 / Stickiness type
     cookie_duration = 86400                          # 지속 시간 (초) / Duration (in seconds)
   }
-
-  # 타겟 해제 지연 시간 / Deregistration delay timeout
-  deregistration_delay_timeout = 300                 # 해제 대기 시간 (초) / Delay time for deregistration (in seconds)
 
   # 태그 설정 / Tag configuration
   tags = merge(var.common_tags, {
