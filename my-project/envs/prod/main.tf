@@ -99,9 +99,19 @@ module "iam_roles" {
   common_tags = var.common_tags      # 공통 태그 / Common tags
 }
 
-# SSM 인스턴스 프로파일 출력 / Output the SSM Instance Profile
+# SSM 인스턴스 프로파일 출력 / Output the SSM Instance Profile ARN
 output "ssm_instance_profile" {
-  value = module.iam_roles.ssm_instance_profile # SSM Instance Profile ARN
+  value = module.iam_roles.ssm_instance_profile_arn # SSM Instance Profile ARN
+}
+
+# SSM 역할 ARN 출력 / Output the SSM Role ARN
+output "ssm_role" {
+  value = module.iam_roles.ssm_role_arn # SSM Role ARN
+}
+
+# SSM 인스턴스 프로파일 이름 출력 / Output the SSM Instance Profile Name
+output "ssm_instance_profile_name" {
+  value = module.iam_roles.ssm_instance_profile_name # SSM Instance Profile Name
 }
 
 # 보안 그룹 모듈 호출 / Call the Security Group module
