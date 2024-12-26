@@ -83,7 +83,7 @@ module "ec2" {
     "10.0.96.101", "10.0.96.102"
   ]
   
-  instance_profile    = module.iam_roles.ssm_instance_profile # IAM 인스턴스 프로파일 ARN
+  instance_profile    = aws_iam_instance_profile.ssm_instance_profile.arn # IAM Instance Profile ARN
   public_ec2_security_group_id  = module.security_groups.public_ec2_security_group_id  # 퍼블릭 보안 그룹 ID / Public security group ID
   private_ec2_security_group_id = module.security_groups.private_ec2_security_group_id # 프라이빗 보안 그룹 ID / Private security group ID
   environment         = var.environment            # 환경 이름 / Environment name
