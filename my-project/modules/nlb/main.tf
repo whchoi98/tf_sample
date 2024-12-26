@@ -5,7 +5,6 @@ resource "aws_lb" "internet_nlb" {
   name               = "${var.stack_name}-InternetNLB" # NLB 이름 / NLB name
   internal           = false                           # 외부에서 접근 가능 / External access enabled
   load_balancer_type = "network"                       # NLB 유형 / NLB type
-  security_groups     = [var.nlb_security_group_id]    # 보안 그룹 ID 연결 / Associated Security Group ID
   subnets            = var.public_subnets             # NLB를 배치할 퍼블릭 서브넷 / Public subnets for NLB placement
 
   # 태그 설정 / Tag configuration
@@ -46,8 +45,7 @@ resource "aws_lb_target_group" "nlb_public_target_group" {
     protocol            = "TCP"                      # 헬스 체크 프로토콜 / Health check protocol
     healthy_threshold   = 3                          # 건강 상태 임계값 / Healthy threshold
     unhealthy_threshold = 2                          # 비정상 상태 임계값 / Unhealthy threshold
-    timeout_seconds     = 10                         # 타임아웃 초 / Timeout in seconds
-    interval_seconds    = 30                         # 헬스 체크 간격 / Health check interval
+    interval            = 30                         # 헬스 체크 간격 / Health check interval
   }
 
   # 태그 설정 / Tag configuration
@@ -57,15 +55,19 @@ resource "aws_lb_target_group" "nlb_public_target_group" {
       Name = "${var.stack_name}-NLB-PublicTargetGroup" # 타겟 그룹 이름 태그 / Target group name tag
     }
   )
+}
 
-  # 타겟 등록 / Register targets
-  targets {
-    id   = var.private_instance_1_id                 # 프라이빗 EC2 인스턴스 1 ID / Private EC2 instance 1 ID
-    port = 80                                        # TCP 포트 / TCP port
-  }
+# Target 등록 / Register targets
+# EC2 인스턴스를 NLB 타겟 그룹에 추가합니다.
+# Add EC2 instances to the NLB target group.
+resource "aws_lb_target_group_attachment" "private_instance_1" {
+  target_group_arn = aws_lb_target_group.nlb_public_target_group.arn # 타겟 그룹 ARN / Target group ARN
+  target_id        = var.private_instance_1_id                       # 프라이빗 인스턴스 1 ID / Private instance 1 ID
+  port             = 80                                              # TCP 포트 / TCP port
+}
 
-  targets {
-    id   = var.private_instance_2_id                 # 프라이빗 EC2 인스턴스 2 ID / Private EC2 instance 2 ID
-    port = 80                                        # TCP 포트 / TCP port
-  }
+resource "aws_lb_target_group_attachment" "private_instance_2" {
+  target_group_arn = aws_lb_target_group.nlb_public_target_group.arn # 타겟 그룹 ARN / Target group ARN
+  target_id        = var.private_instance_2_id                       # 프라이빗 인스턴스 2 ID / Private instance 2 ID
+  port             = 80                                              # TCP 포트 / TCP port
 }
