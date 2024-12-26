@@ -9,6 +9,22 @@ output "instance_ids" {
   )
 }
 
+# Output: 첫 번째 프라이빗 인스턴스 ID / First Private Instance ID
+# 첫 번째 프라이빗 EC2 인스턴스의 ID를 출력합니다.
+# Outputs the ID of the first private EC2 instance.
+output "private_instance_1_id" {
+  description = "ID of the first private EC2 instance" # 첫 번째 프라이빗 EC2 인스턴스의 ID
+  value       = aws_instance.private_ec2[0].id        # 첫 번째 프라이빗 EC2 인스턴스 / First private EC2 instance
+}
+
+# Output: 두 번째 프라이빗 인스턴스 ID / Second Private Instance ID
+# 두 번째 프라이빗 EC2 인스턴스의 ID를 출력합니다.
+# Outputs the ID of the second private EC2 instance.
+output "private_instance_2_id" {
+  description = "ID of the second private EC2 instance" # 두 번째 프라이빗 EC2 인스턴스의 ID
+  value       = aws_instance.private_ec2[1].id         # 두 번째 프라이빗 EC2 인스턴스 / Second private EC2 instance
+}
+
 # Output: EC2 프라이빗 IP / EC2 Private IPs
 # 생성된 모든 EC2 인스턴스의 프라이빗 IP를 출력합니다.
 # Outputs the private IPs of all created EC2 instances.
