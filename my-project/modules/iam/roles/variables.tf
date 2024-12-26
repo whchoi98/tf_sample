@@ -23,8 +23,8 @@ variable "common_tags" {
   default     = {}                             # 기본값: 빈 맵 / Default: empty map
 }
 
-# IAM Instance Profile Name 변수 / Variable for IAM Instance Profile Name
 variable "instance_profile_name" {
-  description = "Name of the IAM Instance Profile to associate with the EC2 instances"
+  description = "Name of the IAM Instance Profile" # IAM 인스턴스 프로파일 이름
   type        = string
+  default     = "EC2-Default-SSMInstanceProfile"       # 기본값 / Default value
 }
