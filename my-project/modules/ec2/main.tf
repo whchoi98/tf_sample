@@ -68,9 +68,6 @@ resource "aws_instance" "private_ec2" {
     }
   )
 
-  # IAM Instance Profile 연결 / Associates IAM Instance Profile
-  iam_instance_profile = var.instance_profile
-
   # User Data 스크립트 / User Data script
   # EC2 인스턴스에 Apache HTTP 서버 및 기타 도구를 설치 / Installs Apache HTTP server and other tools on the EC2 instance
   user_data = <<-EOF
