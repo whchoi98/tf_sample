@@ -42,6 +42,55 @@ module "routing" {
   attach_subnet_ids   = module.vpc.attach_subnet_ids  # 어태치 서브넷 ID / Attach subnet IDs
 }
 
+# 보안 그룹 모듈 호출 / Call the Security Group module
+# Security Group 리소스는 VPC Endpoint와 함께 사용됩니다. / Security groups are used with VPC Endpoints.
+module "security_groups" {
+  source      = "../../modules/security-group"
+  vpc_id      = module.vpc.vpc_id             # VPC 모듈의 출력값 참조 / Refer output of VPC module
+  environment = var.environment               # 환경 이름 / Environment name
+  common_tags = var.common_tags               # 공통 태그 / Common tags
+}
+
+
+# VPC Endpoint 모듈 호출 / Call the VPC Endpoint module
+# SSM 및 SSM Messages VPC Endpoint를 생성합니다. / Creates SSM and SSM Messages VPC Endpoints.
+module "vpc_endpoints" {
+  source              = "../../modules/vpc-endpoint"
+  vpc_id              = module.vpc.vpc_id             # VPC 모듈 출력값 참조 / Refer VPC module output
+  region              = var.region                     # AWS 리전 / AWS Region
+  private_subnet_ids  = module.vpc.private_subnet_ids  # VPC 모듈의 프라이빗 서브넷 출력 참조 / Refer private subnets from VPC module
+  ssm_security_group_id = module.security_groups.ssm_security_group_id  # SSM 보안 그룹 ID / SSM security group ID
+  environment         = var.environment                # 환경 이름 / Environment name
+  common_tags         = var.common_tags                # 공통 태그 / Common tags
+}
+
+# IAM 역할 모듈 호출 / Call the IAM Roles module
+# EC2 인스턴스용 IAM 역할을 생성합니다.
+# Creates IAM roles for EC2 instances.
+module "iam_roles" {
+  source      = "../../modules/iam/roles" # IAM 역할 모듈 경로 / Path to the IAM roles module
+  name        = "prod"                    # IAM 역할 이름 / IAM role name
+  environment = var.environment           # 환경 이름 / Environment name
+  common_tags = var.common_tags           # 공통 태그 / Common tags
+}
+
+# SSM 인스턴스 프로파일 출력 / Output the SSM Instance Profile Name
+# EC2에서 사용할 IAM Instance Profile의 이름을 출력합니다.
+# Outputs the name of the IAM Instance Profile for EC2.
+output "ssm_instance_profile_name" {
+  description = "Name of the SSM Instance Profile" # SSM 인스턴스 프로파일의 이름
+  value       = module.iam_roles.ssm_instance_profile_name # SSM Instance Profile Name
+}
+
+# SSM 역할 ARN 출력 / Output the SSM Role ARN
+# 생성된 SSM IAM 역할의 ARN을 출력합니다.
+# Outputs the ARN of the created SSM IAM role.
+output "ssm_role_arn" {
+  description = "ARN of the SSM Role" # SSM 역할의 ARN
+  value       = module.iam_roles.ssm_role_arn # SSM Role ARN
+}
+
+
 # 최신 Amazon Linux 2 AMI 데이터 호출 / Fetch the latest Amazon Linux 2 AMI data
 data "aws_ami" "amazon_linux_2" {
   most_recent = true                             # 가장 최근 AMI 선택 / Select the most recent AMI
@@ -94,51 +143,8 @@ module "ec2" {
   common_tags             = var.common_tags            # 공통 태그 / Common tags
 }
 
-# IAM 역할 모듈 호출 / Call the IAM Roles module
-# EC2 인스턴스용 IAM 역할을 생성합니다.
-# Creates IAM roles for EC2 instances.
-module "iam_roles" {
-  source      = "../../modules/iam/roles" # IAM 역할 모듈 경로 / Path to the IAM roles module
-  name        = "prod"                    # IAM 역할 이름 / IAM role name
-  environment = var.environment           # 환경 이름 / Environment name
-  common_tags = var.common_tags           # 공통 태그 / Common tags
-}
 
-# SSM 인스턴스 프로파일 출력 / Output the SSM Instance Profile Name
-# EC2에서 사용할 IAM Instance Profile의 이름을 출력합니다.
-# Outputs the name of the IAM Instance Profile for EC2.
-output "ssm_instance_profile_name" {
-  description = "Name of the SSM Instance Profile" # SSM 인스턴스 프로파일의 이름
-  value       = module.iam_roles.ssm_instance_profile_name # SSM Instance Profile Name
-}
 
-# SSM 역할 ARN 출력 / Output the SSM Role ARN
-# 생성된 SSM IAM 역할의 ARN을 출력합니다.
-# Outputs the ARN of the created SSM IAM role.
-output "ssm_role_arn" {
-  description = "ARN of the SSM Role" # SSM 역할의 ARN
-  value       = module.iam_roles.ssm_role_arn # SSM Role ARN
-}
-# 보안 그룹 모듈 호출 / Call the Security Group module
-# Security Group 리소스는 VPC Endpoint와 함께 사용됩니다. / Security groups are used with VPC Endpoints.
-module "security_groups" {
-  source      = "../../modules/security-group"
-  vpc_id      = module.vpc.vpc_id             # VPC 모듈의 출력값 참조 / Refer output of VPC module
-  environment = var.environment               # 환경 이름 / Environment name
-  common_tags = var.common_tags               # 공통 태그 / Common tags
-}
-
-# VPC Endpoint 모듈 호출 / Call the VPC Endpoint module
-# SSM 및 SSM Messages VPC Endpoint를 생성합니다. / Creates SSM and SSM Messages VPC Endpoints.
-module "vpc_endpoints" {
-  source              = "../../modules/vpc-endpoint"
-  vpc_id              = module.vpc.vpc_id             # VPC 모듈 출력값 참조 / Refer VPC module output
-  region              = var.region                     # AWS 리전 / AWS Region
-  private_subnet_ids  = module.vpc.private_subnet_ids  # VPC 모듈의 프라이빗 서브넷 출력 참조 / Refer private subnets from VPC module
-  ssm_security_group_id = module.security_groups.ssm_security_group_id  # SSM 보안 그룹 ID / SSM security group ID
-  environment         = var.environment                # 환경 이름 / Environment name
-  common_tags         = var.common_tags                # 공통 태그 / Common tags
-}
 
 # ALB 모듈 호출 / Call the ALB module
 # ALB 및 관련 리소스를 생성합니다. / Creates the ALB and related resources.
