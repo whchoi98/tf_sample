@@ -165,10 +165,11 @@ module "alb" {
 # NLB 및 관련 리소스를 생성합니다. / Creates the NLB and related resources.
 module "nlb" {
   source                   = "../../modules/nlb"
-  stack_name               = var.stack_name           # 스택 이름 / Stack name
-  vpc_id                   = module.vpc.vpc_id        # VPC 모듈 출력값 참조 / Refer VPC module output
-  public_subnets           = module.vpc.public_subnet_ids  # VPC 모듈의 퍼블릭 서브넷 출력 참조 / Refer public subnets from VPC module
-  nlb_security_group_id    = module.security_groups.nlb_security_group_id  # NLB 보안 그룹 ID / NLB security group ID
-  private_instance_ids     = module.ec2.private_instance_ids # 모든 프라이빗 EC2 인스턴스 ID 전달 / Pass all private EC2 instance IDs
-  common_tags              = var.common_tags           # 공통 태그 / Common tags
+  stack_name               = var.stack_name               # 스택 이름 / Stack name
+  vpc_id                   = module.vpc.vpc_id            # VPC ID
+  public_subnets           = module.vpc.public_subnet_ids # 퍼블릭 서브넷 목록 / Public subnet IDs
+  private_subnets          = module.vpc.private_subnet_ids # 프라이빗 서브넷 목록 추가 / Private subnet IDs
+  nlb_security_group_id    = module.security_groups.nlb_security_group_id # NLB 보안 그룹 ID
+  private_instance_ids     = module.ec2.private_instance_ids # 프라이빗 EC2 인스턴스 ID 목록 / Private EC2 instance IDs
+  common_tags              = var.common_tags             # 공통 태그 / Common tags
 }
