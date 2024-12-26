@@ -108,9 +108,9 @@ output "ssm_instance_profile" {
 # Security Group 리소스는 VPC Endpoint와 함께 사용됩니다. / Security groups are used with VPC Endpoints.
 module "security_groups" {
   source      = "../../modules/security-group"
-  vpc_id      = var.vpc_id                      # VPC ID
-  environment = var.environment                 # 환경 이름 / Environment name
-  common_tags = var.common_tags                 # 공통 태그 / Common tags
+  vpc_id      = module.vpc.vpc_id             # VPC 모듈의 출력값 참조 / Refer output of VPC module
+  environment = var.environment               # 환경 이름 / Environment name
+  common_tags = var.common_tags               # 공통 태그 / Common tags
 }
 
 # VPC Endpoint 모듈 호출 / Call the VPC Endpoint module
