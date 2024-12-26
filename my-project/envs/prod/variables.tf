@@ -53,7 +53,7 @@ variable "stack_name" {
 
 # IAM 인스턴스 프로파일 변수 / IAM Instance Profile variable
 # EC2 인스턴스에 사용할 IAM 인스턴스 프로파일 ARN을 정의합니다. / Defines the ARN of the IAM instance profile for EC2 instances.
-variable "instance_profile" {
-  description = "IAM Instance Profile ARN" # IAM 인스턴스 프로파일 ARN
-  type        = string                     # 문자열 타입 / String type
-}
+#variable "instance_profile" {
+#  description = "IAM Instance Profile ARN" # IAM 인스턴스 프로파일 ARN
+#  type        = string                     # 문자열 타입 / String type
+#}
