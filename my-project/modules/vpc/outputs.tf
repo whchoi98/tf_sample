@@ -28,14 +28,3 @@ output "db_subnet_ids" {
   value       = aws_subnet.db[*].id
 }
 
-# Output: Aurora DB Subnet Group 이름 / Aurora DB Subnet Group Name
-output "aurora_db_subnet_group_name" {
-  description = "The name of the Aurora DB Subnet Group"
-  value       = aws_db_subnet_group.aurora.name
-}
-
-# Output: ElastiCache Subnet Group 이름 / ElastiCache Subnet Group Name
-output "elasticache_subnet_group_name" {
-  description = "The name of the ElastiCache Subnet Group"
-  value       = aws_elasticache_subnet_group.elasticache.name
-}
