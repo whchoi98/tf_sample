@@ -57,17 +57,11 @@ resource "aws_lb_target_group" "nlb_public_target_group" {
   )
 }
 
-# Target 등록 / Register targets
-# EC2 인스턴스를 NLB 타겟 그룹에 추가합니다.
-# Add EC2 instances to the NLB target group.
-resource "aws_lb_target_group_attachment" "private_instance_1" {
+# NLB 타겟 추가 / Adding targets to NLB
+# 모든 프라이빗 EC2 인스턴스를 타겟으로 등록 / Register all private EC2 instances as targets
+resource "aws_lb_target_group_attachment" "nlb_targets" {
+  for_each         = toset(var.private_instance_ids)  # 전달된 프라이빗 인스턴스 ID 리스트 / List of private instance IDs
   target_group_arn = aws_lb_target_group.nlb_public_target_group.arn # 타겟 그룹 ARN / Target group ARN
-  target_id        = var.private_instance_1_id                       # 프라이빗 인스턴스 1 ID / Private instance 1 ID
-  port             = 80                                              # TCP 포트 / TCP port
-}
-
-resource "aws_lb_target_group_attachment" "private_instance_2" {
-  target_group_arn = aws_lb_target_group.nlb_public_target_group.arn # 타겟 그룹 ARN / Target group ARN
-  target_id        = var.private_instance_2_id                       # 프라이빗 인스턴스 2 ID / Private instance 2 ID
-  port             = 80                                              # TCP 포트 / TCP port
+  target_id        = each.value                       # EC2 인스턴스 ID / Instance ID
+  port             = 80                               # TCP 포트 / TCP port
 }

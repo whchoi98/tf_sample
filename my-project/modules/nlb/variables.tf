@@ -38,20 +38,9 @@ variable "nlb_security_group_id" {
   type        = string                     # 문자열 타입 / String type
 }
 
-# 프라이빗 EC2 인스턴스 1 ID 변수 / Private EC2 Instance 1 ID Variable
-# NLB 타겟 그룹의 첫 번째 프라이빗 EC2 인스턴스 ID를 정의합니다.
-# Defines the ID of the first private EC2 instance in the NLB target group.
-variable "private_instance_1_id" {
-  description = "Instance ID for private EC2 instance 1" # 프라이빗 EC2 인스턴스 1 ID
-  type        = string                                  # 문자열 타입 / String type
-}
-
-# 프라이빗 EC2 인스턴스 2 ID 변수 / Private EC2 Instance 2 ID Variable
-# NLB 타겟 그룹의 두 번째 프라이빗 EC2 인스턴스 ID를 정의합니다.
-# Defines the ID of the second private EC2 instance in the NLB target group.
-variable "private_instance_2_id" {
-  description = "Instance ID for private EC2 instance 2" # 프라이빗 EC2 인스턴스 2 ID
-  type        = string                                  # 문자열 타입 / String type
+variable "private_instance_ids" {
+  description = "List of private EC2 instance IDs to register with the NLB target group"
+  type        = list(string)
 }
 
 # 공통 태그 변수 / Common Tags Variable
