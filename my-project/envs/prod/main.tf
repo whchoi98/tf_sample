@@ -83,7 +83,7 @@ module "ec2" {
   ]
 
   # IAM Instance Profile 이름을 iam_roles 모듈 출력값으로 지정 / Specify IAM Instance Profile name from iam_roles module output
-  instance_profile        = module.iam_roles.ssm_instance_profile_arn
+  instance_profile        = module.iam_roles.ssm_instance_profile_name # 이름 전달
 
   # 보안 그룹 ID / Security Group IDs
   public_ec2_security_group_id  = module.security_groups.public_ec2_security_group_id  # 퍼블릭 보안 그룹 / Public security group
