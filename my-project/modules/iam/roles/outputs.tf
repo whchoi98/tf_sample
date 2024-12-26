@@ -37,3 +37,9 @@ output "tags" {
   description = "Tags applied to IAM resources" # IAM 리소스에 적용된 태그
   value       = var.common_tags                 # 공통 태그 출력 / Common tags output
 }
+
+# Output: SSM IAM 역할 정책 ARN 목록 / List of SSM IAM Role Policy ARNs
+output "ssm_role_policy_arns" {
+  description = "List of ARNs of the policies attached to the SSM Role" # SSM 역할에 연결된 정책 ARN 목록
+  value       = [for attachment in aws_iam_role_policy_attachment.ssm_role : attachment.policy_arn] # 역할에 연결된 정책 ARN / List of policy ARNs attached to the role
+}

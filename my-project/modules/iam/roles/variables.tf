@@ -22,3 +22,9 @@ variable "common_tags" {
   type        = map(string)                    # 문자열 맵 타입 / Map of strings
   default     = {}                             # 기본값: 빈 맵 / Default: empty map
 }
+
+# IAM Instance Profile Name 변수 / Variable for IAM Instance Profile Name
+variable "instance_profile_name" {
+  description = "Name of the IAM Instance Profile to associate with the EC2 instances"
+  type        = string
+}

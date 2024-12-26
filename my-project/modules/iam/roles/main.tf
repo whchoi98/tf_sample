@@ -54,3 +54,14 @@ resource "aws_iam_instance_profile" "ssm_instance_profile" {
     }
   )
 }
+
+# SSM 역할 정책 연결 / Attach SSM Role Policy
+resource "aws_iam_role_policy_attachment" "ssm_role" {
+  for_each = toset([
+    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore", # SSM 관리 정책 / SSM management policy
+    "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"  # 추가 정책 / Additional policy
+  ])
+
+  role       = aws_iam_role.ssm_role.name # SSM 역할 이름 / SSM role name
+  policy_arn = each.value                  # 정책 ARN / Policy ARN
+}
