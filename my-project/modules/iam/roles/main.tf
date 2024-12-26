@@ -4,9 +4,6 @@
 resource "aws_iam_role" "ssm_role" {
   name               = "${var.name}-SSMRole" # 역할 이름 / Role name
   path               = "/"                   # 역할 경로 / Role path
-  managed_policy_arns = [
-    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore" # SSM 정책 연결 / Attach SSM policy
-  ]
 
   # 역할 신뢰 정책 / Role trust policy
   # EC2 서비스가 이 역할을 사용할 수 있도록 설정합니다.
@@ -26,11 +23,19 @@ resource "aws_iam_role" "ssm_role" {
 
   # 태그 설정 / Tag configuration
   tags = merge(
-    var.common_tags, 
+    var.common_tags,
     {
       Name = "${var.environment}-${var.name}-SSMRole" # 역할 이름 태그 / Role name tag
     }
   )
+}
+
+# SSM 정책 연결 / Attach SSM Policy
+# SSM 정책을 IAM 역할에 연결합니다.
+# Attaches the SSM policy to the IAM role.
+resource "aws_iam_role_policy_attachment" "ssm_policy_attachment" {
+  role       = aws_iam_role.ssm_role.name # 연결할 역할 이름 / Role to attach
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore" # SSM 정책 ARN / SSM policy ARN
 }
 
 # SSM 역할용 인스턴스 프로파일 / Instance Profile for SSM Role
@@ -43,7 +48,7 @@ resource "aws_iam_instance_profile" "ssm_instance_profile" {
 
   # 태그 설정 / Tag configuration
   tags = merge(
-    var.common_tags, 
+    var.common_tags,
     {
       Name = "${var.environment}-${var.name}-InstanceProfile" # 인스턴스 프로파일 이름 태그 / Instance profile name tag
     }
