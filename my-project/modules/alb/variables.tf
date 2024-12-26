@@ -29,8 +29,8 @@ variable "alb_security_group_id" {
 # 프라이빗 EC2 인스턴스 ID 목록 변수 / Private EC2 instance IDs variable
 # ALB 타겟 그룹에 등록될 EC2 인스턴스의 ID 목록을 정의합니다.
 variable "private_instance_ids" {
-  description = "List of private EC2 instance IDs to register with the ALB target group." # 프라이빗 EC2 인스턴스 ID 목록
-  type        = list(string)                                                             # 문자열 리스트 타입
+  description = "List of private EC2 instance IDs to register with the ALB target group"
+  type        = list(string)
 }
 
 # 공통 태그 변수 / Common tags variable

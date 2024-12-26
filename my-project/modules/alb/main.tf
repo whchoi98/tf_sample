@@ -63,8 +63,8 @@ resource "aws_lb_target_group" "alb_public_target_group" {
 # ALB 타겟 추가 (Private EC2 Instances) / Adding targets to ALB (Private EC2 Instances)
 # 6개의 프라이빗 EC2 인스턴스를 동적으로 타겟 그룹에 등록합니다.
 resource "aws_lb_target_group_attachment" "targets" {
-  for_each         = toset(var.private_instance_ids) # 각 인스턴스를 반복 / Iterate over each instance ID
-  target_group_arn = aws_lb_target_group.alb_public_target_group.arn
-  target_id        = each.key
-  port             = 80
+  for_each          = toset(var.private_instance_ids) # 전달된 모든 인스턴스 ID 처리 / Process all instance IDs
+  target_group_arn  = aws_lb_target_group.alb_public_target_group.arn
+  target_id         = each.value
+  port              = 80
 }
