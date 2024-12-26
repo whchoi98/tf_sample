@@ -5,6 +5,7 @@ resource "aws_instance" "public_ec2" {
   count         = length(var.public_fixed_ips) # 고정된 IP 목록 개수만큼 EC2 인스턴스 생성 / Creates EC2 instances for each fixed IP
   ami           = var.ami_id                  # Amazon Linux 2 AMI ID
   instance_type = var.instance_type           # EC2 인스턴스 타입 / EC2 instance type
+  iam_instance_profile = var.instance_profile
   subnet_id     = element(var.public_subnet_ids, count.index % length(var.public_subnet_ids)) 
   # 각 퍼블릭 서브넷에 인스턴스를 분배 / Distributes instances across public subnets
   private_ip    = var.public_fixed_ips[count.index] 
@@ -22,7 +23,6 @@ resource "aws_instance" "public_ec2" {
   )
 
   # IAM Instance Profile 연결 / Associates IAM Instance Profile
-  iam_instance_profile = var.instance_profile
 
   # User Data 스크립트 / User Data script
   # EC2 인스턴스에 Apache HTTP 서버 및 기타 도구를 설치 / Installs Apache HTTP server and other tools on the EC2 instance
@@ -51,6 +51,7 @@ resource "aws_instance" "private_ec2" {
   count         = length(var.private_fixed_ips) # 고정된 IP 목록 개수만큼 EC2 인스턴스 생성 / Creates EC2 instances for each fixed IP
   ami           = var.ami_id                   # Amazon Linux 2 AMI ID
   instance_type = var.instance_type            # EC2 인스턴스 타입 / EC2 instance type
+  iam_instance_profile = var.instance_profile
   subnet_id     = element(var.private_subnet_ids, count.index % length(var.private_subnet_ids)) 
   # 각 프라이빗 서브넷에 인스턴스를 분배 / Distributes instances across private subnets
   private_ip    = var.private_fixed_ips[count.index] 
