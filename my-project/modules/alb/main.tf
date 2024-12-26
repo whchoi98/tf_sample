@@ -1,16 +1,15 @@
 # 인터넷을 통한 Application Load Balancer / Internet-facing Application Load Balancer
-# 인터넷에서 접근 가능한 ALB를 정의합니다. / Defines an ALB accessible from the internet.
+# 외부에서 접근 가능한 ALB를 정의합니다. / Defines an ALB accessible from the internet.
 resource "aws_lb" "internet_alb" {
   name               = "${var.stack_name}-InternetALB" # ALB 이름 / ALB name
   internal           = false                           # 외부에서 접근 가능 / External access enabled
   load_balancer_type = "application"                   # ALB 유형 / ALB type
   security_groups    = [var.alb_security_group_id]     # ALB에 적용할 보안 그룹 / Security group for the ALB
   subnets            = var.public_subnets              # 퍼블릭 서브넷에 배치 / Deployed in public subnets
-
   enable_deletion_protection = false                   # 삭제 보호 비활성화 / Deletion protection disabled
   idle_timeout               = 60                      # 대기 시간 초과 설정 (초 단위) / Idle timeout setting (in seconds)
 
-  # 태그 추가 / Add tags
+  # 태그 설정 / Tag configuration
   tags = merge(var.common_tags, {
     Name = "${var.stack_name}-InternetALB"             # 리소스 이름 태그 / Resource name tag
   })
@@ -38,39 +37,42 @@ resource "aws_lb_target_group" "alb_public_target_group" {
   protocol = "HTTP"                                   # HTTP 프로토콜 / HTTP protocol
   vpc_id   = var.vpc_id                               # VPC ID
 
-  # 헬스 체크 설정 / Health check configuration
+  # 헬스 체크 설정 / Health check settings
   health_check {
     protocol            = "HTTP"                     # 헬스 체크 프로토콜 / Health check protocol
     path                = "/ec2meta-webpage/index.php" # 헬스 체크 경로 / Health check path
-    healthy_threshold   = 5                          # 건강 상태 임계값 / Healthy threshold
+    healthy_threshold   = 5                          # 정상 상태 임계값 / Healthy threshold
     unhealthy_threshold = 2                          # 비정상 상태 임계값 / Unhealthy threshold
-    matcher             = "200"                      # 성공 상태 코드 / Success status code
+    interval            = 30                         # 헬스 체크 간격 (초) / Health check interval (in seconds)
+    timeout             = 5                          # 타임아웃 (초) / Timeout (in seconds)
+    matcher             = { http_code = "200" }      # 성공 코드 / Success code
   }
 
-  # 세션 스티키니스 설정 / Session stickiness configuration
+  # 세션 스티키니스 설정 / Session stickiness settings
   stickiness {
-    type            = "lb_cookie"                   # 스티키니스 유형 / Stickiness type
-    cookie_duration = 86400                         # 스티키니스 지속 시간 (초) / Stickiness duration (in seconds)
+    type            = "lb_cookie"                    # 스티키니스 유형 / Stickiness type
+    cookie_duration = 86400                          # 지속 시간 (초) / Duration (in seconds)
   }
 
-  # 타겟 해제 지연 설정 / Deregistration delay configuration
-  deregistration_delay {
-    timeout_seconds = 300                           # 타겟 해제 지연 시간 (초) / Deregistration delay (in seconds)
-  }
+  # 타겟 해제 지연 시간 / Deregistration delay timeout
+  deregistration_delay_timeout = 300                 # 해제 대기 시간 (초) / Delay time for deregistration (in seconds)
 
-  # 태그 추가 / Add tags
+  # 태그 설정 / Tag configuration
   tags = merge(var.common_tags, {
-    Name = "${var.stack_name}-ALB-PublicTargetGroup" # 타겟 그룹 이름 태그 / Target group name tag
+    Name = "${var.stack_name}-ALB-PublicTargetGroup"  # 리소스 이름 태그 / Resource name tag
   })
+}
 
-  # 프라이빗 EC2 인스턴스를 대상으로 트래픽 전달 / Forward traffic to private EC2 instances
-  target {
-    id   = var.private_instance_1_id                 # 프라이빗 인스턴스 1 ID / Private instance 1 ID
-    port = 80                                        # HTTP 포트 / HTTP port
-  }
+# ALB 타겟 추가 (Private EC2 Instances) / Adding targets to ALB (Private EC2 Instances)
+# 프라이빗 EC2 인스턴스를 타겟으로 추가합니다. / Adds private EC2 instances as targets.
+resource "aws_lb_target_group_attachment" "target_1" {
+  target_group_arn = aws_lb_target_group.alb_public_target_group.arn # 타겟 그룹 ARN / Target group ARN
+  target_id        = var.private_instance_1_id                       # 프라이빗 인스턴스 1 ID / Private instance 1 ID
+  port             = 80                                              # HTTP 포트 / HTTP port
+}
 
-  target {
-    id   = var.private_instance_2_id                 # 프라이빗 인스턴스 2 ID / Private instance 2 ID
-    port = 80                                        # HTTP 포트 / HTTP port
-  }
+resource "aws_lb_target_group_attachment" "target_2" {
+  target_group_arn = aws_lb_target_group.alb_public_target_group.arn # 타겟 그룹 ARN / Target group ARN
+  target_id        = var.private_instance_2_id                       # 프라이빗 인스턴스 2 ID / Private instance 2 ID
+  port             = 80                                              # HTTP 포트 / HTTP port
 }
