@@ -4,8 +4,8 @@
 output "instance_ids" {
   description = "IDs of all EC2 instances" # 모든 EC2 인스턴스의 ID
   value       = concat(
-    aws_instance.public_ec2[*].id, # 퍼블릭 EC2 인스턴스의 ID 목록 / List of public EC2 instance IDs
-    aws_instance.private_ec2[*].id # 프라이빗 EC2 인스턴스의 ID 목록 / List of private EC2 instance IDs
+    values(aws_instance.public_ec2)[*].id,  # 퍼블릭 EC2 인스턴스의 ID 목록
+    values(aws_instance.private_ec2)[*].id # 프라이빗 EC2 인스턴스의 ID 목록
   )
 }
 
@@ -14,7 +14,7 @@ output "instance_ids" {
 # Outputs the ID of the first private EC2 instance.
 output "private_instance_1_id" {
   description = "ID of the first private EC2 instance" # 첫 번째 프라이빗 EC2 인스턴스의 ID
-  value       = aws_instance.private_ec2[0].id        # 첫 번째 프라이빗 EC2 인스턴스 / First private EC2 instance
+  value       = aws_instance.private_ec2["10.0.32.11"].id
 }
 
 # Output: 두 번째 프라이빗 인스턴스 ID / Second Private Instance ID
@@ -22,7 +22,7 @@ output "private_instance_1_id" {
 # Outputs the ID of the second private EC2 instance.
 output "private_instance_2_id" {
   description = "ID of the second private EC2 instance" # 두 번째 프라이빗 EC2 인스턴스의 ID
-  value       = aws_instance.private_ec2[1].id         # 두 번째 프라이빗 EC2 인스턴스 / Second private EC2 instance
+  value       = aws_instance.private_ec2["10.0.32.12"].id
 }
 
 # Output: EC2 프라이빗 IP / EC2 Private IPs
@@ -31,8 +31,8 @@ output "private_instance_2_id" {
 output "private_ips" {
   description = "Private IPs of all EC2 instances" # 모든 EC2 인스턴스의 프라이빗 IP
   value       = concat(
-    aws_instance.public_ec2[*].private_ip, # 퍼블릭 EC2 인스턴스의 프라이빗 IP 목록 / List of public EC2 private IPs
-    aws_instance.private_ec2[*].private_ip # 프라이빗 EC2 인스턴스의 프라이빗 IP 목록 / List of private EC2 private IPs
+    keys(aws_instance.public_ec2),  # 퍼블릭 EC2 인스턴스의 프라이빗 IP 목록
+    keys(aws_instance.private_ec2) # 프라이빗 EC2 인스턴스의 프라이빗 IP 목록
   )
 }
 
@@ -41,7 +41,7 @@ output "private_ips" {
 # Outputs the public IPs of all public EC2 instances.
 output "public_ips" {
   description = "Public IPs of all Public EC2 instances" # 모든 퍼블릭 EC2 인스턴스의 퍼블릭 IP
-  value       = aws_instance.public_ec2[*].public_ip # 퍼블릭 EC2 인스턴스의 퍼블릭 IP 목록 / List of public EC2 public IPs
+  value       = [for instance in values(aws_instance.public_ec2) : instance.public_ip]
 }
 
 # Output: EC2 인스턴스 이름 / EC2 Instance Names
@@ -50,7 +50,7 @@ output "public_ips" {
 output "instance_names" {
   description = "Names of all EC2 instances" # 모든 EC2 인스턴스의 이름
   value       = concat(
-    [for instance in aws_instance.public_ec2 : instance.tags["Name"]], # 퍼블릭 EC2 인스턴스의 이름 목록 / List of public EC2 instance names
-    [for instance in aws_instance.private_ec2 : instance.tags["Name"]] # 프라이빗 EC2 인스턴스의 이름 목록 / List of private EC2 instance names
+    [for instance in values(aws_instance.public_ec2) : instance.tags["Name"]], # 퍼블릭 EC2 인스턴스의 이름 목록
+    [for instance in values(aws_instance.private_ec2) : instance.tags["Name"]] # 프라이빗 EC2 인스턴스의 이름 목록
   )
 }
