@@ -149,14 +149,23 @@ module "ec2" {
 # ALB 모듈 호출 / Call the ALB module
 # ALB 및 관련 리소스를 생성합니다. / Creates the ALB and related resources.
 module "alb" {
-  source                   = "../../modules/alb"
-  stack_name               = var.stack_name           # 스택 이름 / Stack name
-  vpc_id                   = module.vpc.vpc_id        # VPC 모듈 출력값 참조 / Refer VPC module output
-  public_subnets           = module.vpc.public_subnet_ids  # VPC 모듈의 퍼블릭 서브넷 출력 참조 / Refer public subnets from VPC module
-  alb_security_group_id    = module.security_groups.alb_security_group_id  # ALB 보안 그룹 ID / ALB security group ID
-  private_instance_1_id    = module.ec2.private_instance_1_id  # 첫 번째 프라이빗 EC2 인스턴스 ID / First private EC2 instance ID
-  private_instance_2_id    = module.ec2.private_instance_2_id  # 두 번째 프라이빗 EC2 인스턴스 ID / Second private EC2 instance ID
-  common_tags              = var.common_tags          # 공통 태그 / Common tags
+  source                = "../../modules/alb"
+  stack_name            = var.stack_name           # 스택 이름 / Stack name
+  vpc_id                = module.vpc.vpc_id        # VPC 모듈 출력값 참조 / Refer VPC module output
+  public_subnets        = module.vpc.public_subnet_ids  # VPC 모듈의 퍼블릭 서브넷 출력 참조 / Refer public subnets from VPC module
+  alb_security_group_id = module.security_groups.alb_security_group_id  # ALB 보안 그룹 ID / ALB security group ID
+
+  # 6개의 프라이빗 EC2 인스턴스 ID를 전달 / Pass the 6 private EC2 instance IDs
+  private_instance_ids = [
+    module.ec2.private_instance_1_id,  # 프라이빗 인스턴스 1 / Private instance 1
+    module.ec2.private_instance_2_id,  # 프라이빗 인스턴스 2 / Private instance 2
+    module.ec2.private_instance_3_id,  # 프라이빗 인스턴스 3 / Private instance 3
+    module.ec2.private_instance_4_id,  # 프라이빗 인스턴스 4 / Private instance 4
+    module.ec2.private_instance_5_id,  # 프라이빗 인스턴스 5 / Private instance 5
+    module.ec2.private_instance_6_id   # 프라이빗 인스턴스 6 / Private instance 6
+  ]
+
+  common_tags = var.common_tags          # 공통 태그 / Common tags
 }
 
 # NLB 모듈 호출 / Call the NLB module
