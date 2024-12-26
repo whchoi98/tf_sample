@@ -11,7 +11,7 @@ resource "aws_instance" "public_ec2" {
   # 고정된 IP를 사용하여 EC2 설정 / Configures EC2 with fixed IPs
 
   # 퍼블릭 EC2에 보안 그룹 연결 / Associates security group for public EC2
-  security_group_ids = [var.public_ec2_security_group_id]
+  vpc_security_group_ids = [var.public_ec2_security_group_id]
 
   # 리소스 태그 설정 / Resource tags configuration
   tags = merge(
@@ -57,7 +57,7 @@ resource "aws_instance" "private_ec2" {
   # 고정된 IP를 사용하여 EC2 설정 / Configures EC2 with fixed IPs
 
   # 프라이빗 EC2에 보안 그룹 연결 / Associates security group for private EC2
-  security_group_ids = [var.private_ec2_security_group_id]
+  vpc_security_group_ids = [var.private_ec2_security_group_id]
 
   # 리소스 태그 설정 / Resource tags configuration
   tags = merge(
