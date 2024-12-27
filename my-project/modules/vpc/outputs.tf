@@ -28,3 +28,10 @@ output "db_subnet_ids" {
   value       = aws_subnet.db[*].id
 }
 
+# Output: ElastiCache 서브넷 ID / ElastiCache Subnet IDs
+# 생성된 ElastiCache 서브넷의 ID 목록을 출력합니다.
+# Outputs the IDs of the created ElastiCache subnets.
+output "elasticache_subnet_ids" {
+  description = "The IDs of the ElastiCache subnets"
+  value       = aws_subnet.elasticache[*].id
+}

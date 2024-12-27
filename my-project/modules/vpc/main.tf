@@ -75,24 +75,17 @@ resource "aws_subnet" "db" {
   }
 }
 
-# Aurora용 DB Subnet Group / DB Subnet Group for Aurora
-resource "aws_db_subnet_group" "aurora" {
-  name       = "${var.name}-aurora-db-subnet-group"
-  subnet_ids = aws_subnet.db[*].id
+# ElastiCache 서브넷 / ElastiCache Subnets
+# VPC에 ElastiCache 서브넷을 생성합니다.
+# Creates ElastiCache subnets in the VPC.
+resource "aws_subnet" "elasticache" {
+  count             = 3
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.elasticache_subnet_cidrs[count.index]
+  availability_zone = "${var.region}${var.azs[count.index]}"
 
   tags = {
-    Name        = "${var.name}-aurora-db-subnet-group"
-    Environment = var.environment
-  }
-}
-
-# ElastiCache용 Subnet Group / Subnet Group for ElastiCache
-resource "aws_elasticache_subnet_group" "elasticache" {
-  name       = "${var.name}-elasticache-subnet-group"
-  subnet_ids = aws_subnet.db[*].id
-
-  tags = {
-    Name        = "${var.name}-elasticache-subnet-group"
+    Name        = "${var.name}-elasticache-${count.index + 1}"
     Environment = var.environment
   }
 }

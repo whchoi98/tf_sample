@@ -28,6 +28,20 @@ module "vpc" {
     "10.0.242.0/24",
     "10.0.243.0/24"
   ]
+
+  # ElastiCache 서브넷 CIDR 목록 / List of ElastiCache subnet CIDRs
+  elasticache_subnet_cidrs = [
+    "10.0.131.0/24",
+    "10.0.132.0/24",
+    "10.0.133.0/24"
+  ]
+
+  # DB 서브넷 CIDR 목록 / List of DB subnet CIDRs
+  db_subnet_cidrs = [
+    "10.0.134.0/24",
+    "10.0.135.0/24",
+    "10.0.136.0/24"
+  ]
 }
 
 # 라우팅 테이블 모듈 호출 / Call the Routing Table module
