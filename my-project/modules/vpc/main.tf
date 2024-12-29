@@ -89,3 +89,20 @@ resource "aws_subnet" "elasticache" {
     Environment = var.environment
   }
 }
+
+resource "aws_nat_gateway" "main" {
+  allocation_id = aws_eip.nat.id
+  subnet_id     = aws_subnet.public[0].id
+  tags = {
+    Name        = "${var.name}-nat-gateway"
+    Environment = var.environment
+  }
+}
+
+resource "aws_eip" "nat" {
+  domain = "vpc"
+  tags = {
+    Name        = "${var.name}-nat-eip"
+    Environment = var.environment
+  }
+}
