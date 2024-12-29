@@ -1,3 +1,16 @@
+# Aurora MySQL DB Subnet Group
+resource "aws_db_subnet_group" "aurora" {
+  name       = "${var.name}-aurora-db-subnet-group" # Subnet Group 이름
+  subnet_ids = var.db_subnet_ids
+
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "${var.name}-aurora-db-subnet-group"
+    }
+  )
+}
+
 # Aurora MySQL DB Cluster
 resource "aws_rds_cluster" "aurora" {
   cluster_identifier      = "${var.name}-aurora-cluster"
@@ -8,7 +21,7 @@ resource "aws_rds_cluster" "aurora" {
   master_password         = var.master_password
   backup_retention_period = var.backup_retention_period
   preferred_backup_window = var.preferred_backup_window
-  db_subnet_group_name    = var.db_subnet_group_name
+  db_subnet_group_name    = aws_db_subnet_group.aurora.name # DB Subnet Group 참조
   vpc_security_group_ids  = var.vpc_security_group_ids
   storage_encrypted       = true
   apply_immediately       = true
@@ -36,19 +49,6 @@ resource "aws_rds_cluster_instance" "aurora_instances" {
     var.common_tags,
     {
       Name = "${var.name}-aurora-instance-${count.index + 1}"
-    }
-  )
-}
-
-# Aurora MySQL DB Subnet Group
-resource "aws_db_subnet_group" "aurora" {
-  name       = "${var.name}-aurora-db-subnet-group"
-  subnet_ids = var.db_subnet_ids
-
-  tags = merge(
-    var.common_tags,
-    {
-      Name = "${var.name}-aurora-db-subnet-group"
     }
   )
 }

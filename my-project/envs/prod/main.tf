@@ -189,7 +189,6 @@ module "nlb" {
 }
 
 # Aurora MySQL 클러스터 / Aurora MySQL Cluster
-# Aurora MySQL 클러스터 / Aurora MySQL Cluster
 # Aurora MySQL 클러스터 및 관련 리소스를 생성합니다. / Creates the Aurora MySQL Cluster and related resources.
 module "aurora" {
   source                 = "../../modules/db"
