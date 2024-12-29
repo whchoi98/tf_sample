@@ -66,6 +66,7 @@ variable "db_password" {
   description = "The master password for the Aurora database"
   type        = string
   sensitive   = true
+  default     = "" # 기본값 설정 / Set a default value
 }
 
 # Aurora 인스턴스 개수 / Aurora Instance Count
