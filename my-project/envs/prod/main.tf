@@ -189,17 +189,24 @@ module "nlb" {
 }
 
 # Aurora MySQL 클러스터 / Aurora MySQL Cluster
+# Aurora MySQL 클러스터 / Aurora MySQL Cluster
+# Aurora MySQL 클러스터 및 관련 리소스를 생성합니다. / Creates the Aurora MySQL Cluster and related resources.
 module "aurora" {
-  source              = "../../modules/db"
-  cluster_name        = "prod-aurora-cluster"                # 클러스터 이름 / Cluster name
-  database_name             = "productiondb"                      # DB 이름 / DB name
-  db_username         = "admin"                             # DB 관리자 사용자 이름 / DB admin username
-  master_password     = var.db_password                  # DB 비밀번호 / DB password (변수로 관리)
-  instance_count      = var.aurora_instance_count           # 인스턴스 개수 / Number of instances
-  instance_class      = "db.r6g.large"                      # DB 인스턴스 클래스 / DB instance class
-  engine_version      = var.aurora_engine_version           # 최신 Aurora 엔진 버전 / Aurora engine version
-  subnet_ids          = module.vpc.db_subnet_ids            # DB 서브넷 / DB subnets
-  security_group_ids  = [module.security_groups.db_security_group_id] # DB 보안 그룹 / DB security group
-  cluster_tags        = var.common_tags                     # 공통 태그 / Common tags
+  source                 = "../../modules/db"
+  name                   = "prod-aurora"                        # 클러스터 및 리소스 접두사 / Cluster and resource prefix
+  database_name          = "productiondb"                      # 데이터베이스 이름 / Database name
+  master_username        = "admin"                             # 마스터 사용자 이름 / Master username
+  master_password        = var.db_password                     # 마스터 비밀번호 (변수로 관리) / Master password (managed via variable)
+  engine_version         = var.aurora_engine_version           # Aurora 엔진 버전 / Aurora engine version
+  instance_count         = var.aurora_instance_count           # 인스턴스 개수 / Number of instances
+  instance_class         = "db.r6g.large"                      # 인스턴스 클래스 / Instance class
+  db_subnet_ids          = module.vpc.db_subnet_ids            # DB 서브넷 ID / DB subnet IDs
+  vpc_security_group_ids = [module.security_groups.db_security_group_id] # VPC 보안 그룹 ID / VPC security group IDs
+  backup_retention_period = 7                                  # 백업 보관 기간 (일) / Backup retention period (in days)
+  preferred_backup_window = "07:00-09:00"                      # 선호 백업 시간 / Preferred backup time
+  publicly_accessible    = false                               # 퍼블릭 액세스 설정 / Publicly accessible
+
+  # 공통 태그 / Common tags
+  common_tags = var.common_tags
 }
 
