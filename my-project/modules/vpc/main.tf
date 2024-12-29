@@ -11,16 +11,44 @@ resource "aws_vpc" "main" {
     Environment = var.environment
   }
 }
-# Internet Gateway 생성
-resource "aws_internet_gateway" "main" {
-  vpc_id = aws_vpc.main.id
 
-  tags = {
-    Name        = "${var.name}-internet-gateway"
-    Environment = var.environment
+# Internet Gateway 생성 / Create Internet Gateway
+# VPC와 연결된 인터넷 게이트웨이를 생성합니다.
+# Creates an Internet Gateway associated with the VPC.
+resource "aws_internet_gateway" "main" {
+  vpc_id = var.vpc_id # 연결된 VPC ID / Associated VPC ID
+  tags   = {
+    Name        = "${var.name}-igw"      # 인터넷 게이트웨이 이름 태그 / Internet Gateway name tag
+    Environment = var.environment        # 환경 태그 / Environment tag
   }
 }
 
+# NAT Gateway 생성 / Create NAT Gateway
+# 인터넷에 액세스할 수 있도록 NAT 게이트웨이를 생성합니다.
+# Creates a NAT Gateway for private subnet internet access.
+
+# Elastic IP 생성 / Create Elastic IP
+# NAT Gateway에 사용할 Elastic IP를 생성합니다.
+# Creates an Elastic IP for the NAT Gateway.
+resource "aws_eip" "nat" {
+  domain = "vpc" # VPC 도메인 / VPC domain
+  tags = {
+    Name        = "${var.name}-nat-eip" # NAT EIP 이름 태그 / NAT EIP name tag
+    Environment = var.environment       # 환경 태그 / Environment tag
+  }
+}
+
+# NAT Gateway 생성 / Create NAT Gateway
+# A Zone의 Public Subnet을 사용하여 NAT 게이트웨이를 생성합니다.
+# Creates a NAT Gateway using a Public Subnet in Zone A.
+resource "aws_nat_gateway" "main" {
+  allocation_id = aws_eip.nat.id # NAT Gateway에 연결된 Elastic IP / Elastic IP associated with the NAT Gateway
+  subnet_id     = var.public_subnet_ids[0] # A Zone의 Public Subnet ID / Public Subnet ID in Zone A
+  tags          = {
+    Name        = "${var.name}-nat-gateway" # NAT Gateway 이름 태그 / NAT Gateway name tag
+    Environment = var.environment           # 환경 태그 / Environment tag
+  }
+}
 # 퍼블릭 서브넷 / Public Subnets
 # VPC에 퍼블릭 서브넷을 생성합니다.
 # Creates public subnets in the VPC.
@@ -95,25 +123,6 @@ resource "aws_subnet" "elasticache" {
 
   tags = {
     Name        = "${var.name}-elasticache-${count.index + 1}"
-    Environment = var.environment
-  }
-}
-
-resource "aws_nat_gateway" "main" {
-  allocation_id = aws_eip.nat.id
-  subnet_id     = aws_subnet.public[0].id
-  depends_on = [aws_internet_gateway.main] # Internet Gateway 생성 후 NAT Gateway 생성
-
-  tags = {
-    Name        = "${var.name}-nat-gateway"
-    Environment = var.environment
-  }
-}
-
-resource "aws_eip" "nat" {
-  domain = "vpc"
-  tags = {
-    Name        = "${var.name}-nat-eip"
     Environment = var.environment
   }
 }
