@@ -26,10 +26,10 @@ variable "azs" {
 # VPC ID 변수 / VPC ID Variable
 # 보안 그룹이 연결될 VPC의 ID를 정의합니다.
 # Defines the ID of the VPC associated with the security groups.
-variable "vpc_id" {
-  description = "ID of the VPC" # VPC ID
-  type        = string         # 문자열 타입 / String type
-}
+#variable "vpc_id" {
+#  description = "ID of the VPC" # VPC ID
+#  type        = string         # 문자열 타입 / String type
+#}
 
 # NAT Gateway ID 변수 / NAT Gateway ID Variable
 # NAT Gateway의 ID를 정의합니다.

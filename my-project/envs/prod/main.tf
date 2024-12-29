@@ -43,7 +43,6 @@ module "vpc" {
     "10.0.136.0/24"
   ]
 }
-
 # 라우팅 테이블 모듈 호출 / Call the Routing Table module
 # 서브넷별 라우팅 테이블을 생성하고 연결합니다. / Creates and associates routing tables for each subnet.
 module "routing" {
