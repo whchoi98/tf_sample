@@ -135,7 +135,7 @@ resource "aws_route" "db_route" {
   count                 = length(var.db_subnet_ids)  # DB 서브넷 개수만큼 라우트 생성 / Creates routes for each DB Subnet
   route_table_id        = aws_route_table.db[count.index].id # 연결된 Route Table ID / Associated Route Table ID
   destination_cidr_block = "0.0.0.0/0"                   # 기본 라우트 (NAT Gateway로 트래픽 전달) / Default route (traffic to NAT Gateway)
-  nat_gateway_id         = var.nat_gateway_id            # NAT 게이트웨이 ID / NAT Gateway ID
+  nat_gateway_id         = aws_nat_gateway.main.id           # NAT 게이트웨이 ID / NAT Gateway ID
 }
 
 # DB 서브넷에 Route Table 연결 / Associate Route Tables with DB Subnets
@@ -165,7 +165,7 @@ resource "aws_route" "elasticache_route" {
   count                 = length(var.elasticache_subnet_ids)  # ElastiCache 서브넷 개수만큼 라우트 생성 / Creates routes for each ElastiCache Subnet
   route_table_id        = aws_route_table.elasticache[count.index].id # 연결된 Route Table ID / Associated Route Table ID
   destination_cidr_block = "0.0.0.0/0"                        # 기본 라우트 (NAT Gateway로 트래픽 전달) / Default route (traffic to NAT Gateway)
-  nat_gateway_id         = var.nat_gateway_id                 # NAT 게이트웨이 ID / NAT Gateway ID
+  nat_gateway_id         = aws_nat_gateway.main.id                # NAT 게이트웨이 ID / NAT Gateway ID
 }
 
 # ElastiCache 서브넷에 Route Table 연결 / Associate Route Tables with ElastiCache Subnets
