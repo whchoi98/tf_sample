@@ -111,8 +111,3 @@ variable "elasticache_subnet_cidrs" {
   type        = list(string)
   default     = ["10.0.131.0/24", "10.0.132.0/24", "10.0.133.0/24"]
 }
-
-variable "public_subnet_ids" {
-  description = "IDs of public subnets"
-  type        = list(string)
-}
