@@ -192,7 +192,7 @@ module "nlb" {
 module "aurora" {
   source              = "../../modules/db"
   cluster_name        = "prod-aurora-cluster"                # 클러스터 이름 / Cluster name
-  db_name             = "productiondb"                      # DB 이름 / DB name
+  database_name             = "productiondb"                      # DB 이름 / DB name
   db_username         = "admin"                             # DB 관리자 사용자 이름 / DB admin username
   master_password     = var.db_password                  # DB 비밀번호 / DB password (변수로 관리)
   instance_count      = var.aurora_instance_count           # 인스턴스 개수 / Number of instances
