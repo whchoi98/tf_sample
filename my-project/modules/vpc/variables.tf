@@ -1,19 +1,3 @@
-# VPC ID 변수 / VPC ID Variable
-# 보안 그룹이 연결될 VPC의 ID를 정의합니다.
-# Defines the ID of the VPC associated with the security groups.
-variable "vpc_id" {
-  description = "ID of the VPC" # VPC ID
-  type        = string         # 문자열 타입 / String type
-}
-
-# 이름 접두사 / Name Prefix
-# VPC 및 서브넷 이름에 사용할 접두사를 정의합니다.
-# Defines the name prefix for VPC and subnets.
-variable "name" {
-  description = "The name prefix for the VPC and subnets"
-  type        = string
-}
-
 # 환경 이름 / Environment Name
 # 배포 환경 이름(dev, staging, prod)을 정의합니다.
 # Defines the environment name (e.g., dev, staging, prod).
@@ -39,6 +23,14 @@ variable "azs" {
   default     = ["a", "b", "c"]
 }
 
+# VPC ID 변수 / VPC ID Variable
+# 보안 그룹이 연결될 VPC의 ID를 정의합니다.
+# Defines the ID of the VPC associated with the security groups.
+variable "vpc_id" {
+  description = "ID of the VPC" # VPC ID
+  type        = string         # 문자열 타입 / String type
+}
+
 # NAT Gateway ID 변수 / NAT Gateway ID Variable
 # NAT Gateway의 ID를 정의합니다.
 # Defines the ID of the NAT Gateway.
@@ -52,6 +44,15 @@ variable "nat_gateway_id" {
 # Defines the CIDR block for the VPC.
 variable "cidr" {
   description = "The CIDR block for the VPC"
+  type        = string
+}
+
+
+# 이름 접두사 / Name Prefix
+# VPC 및 서브넷 이름에 사용할 접두사를 정의합니다.
+# Defines the name prefix for VPC and subnets.
+variable "name" {
+  description = "The name prefix for the VPC and subnets"
   type        = string
 }
 
