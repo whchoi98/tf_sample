@@ -94,18 +94,18 @@ module "iam_roles" {
 # SSM 인스턴스 프로파일 출력 / Output the SSM Instance Profile Name
 # EC2에서 사용할 IAM Instance Profile의 이름을 출력합니다.
 # Outputs the name of the IAM Instance Profile for EC2.
-output "ssm_instance_profile_name" {
-  description = "Name of the SSM Instance Profile" # SSM 인스턴스 프로파일의 이름
-  value       = module.iam_roles.ssm_instance_profile_name # SSM Instance Profile Name
-}
+#output "ssm_instance_profile_name" {
+#  description = "Name of the SSM Instance Profile" # SSM 인스턴스 프로파일의 이름
+#  value       = module.iam_roles.ssm_instance_profile_name # SSM Instance Profile Name
+#}
 
 # SSM 역할 ARN 출력 / Output the SSM Role ARN
 # 생성된 SSM IAM 역할의 ARN을 출력합니다.
 # Outputs the ARN of the created SSM IAM role.
-output "ssm_role_arn" {
-  description = "ARN of the SSM Role" # SSM 역할의 ARN
-  value       = module.iam_roles.ssm_role_arn # SSM Role ARN
-}
+#output "ssm_role_arn" {
+#  description = "ARN of the SSM Role" # SSM 역할의 ARN
+#  value       = module.iam_roles.ssm_role_arn # SSM Role ARN
+#}
 
 
 # 최신 Amazon Linux 2 AMI 데이터 호출 / Fetch the latest Amazon Linux 2 AMI data
@@ -160,9 +160,6 @@ module "ec2" {
   common_tags             = var.common_tags            # 공통 태그 / Common tags
 }
 
-
-
-
 # ALB 모듈 호출 / Call the ALB module
 # ALB 및 관련 리소스를 생성합니다. / Creates the ALB and related resources.
 module "alb" {
@@ -190,3 +187,19 @@ module "nlb" {
   private_instance_ids     = module.ec2.private_instance_ids # 프라이빗 EC2 인스턴스 ID 목록 / Private EC2 instance IDs
   common_tags              = var.common_tags             # 공통 태그 / Common tags
 }
+
+# Aurora MySQL 클러스터 / Aurora MySQL Cluster
+module "aurora" {
+  source              = "../../modules/db"
+  cluster_name        = "prod-aurora-cluster"                # 클러스터 이름 / Cluster name
+  db_name             = "productiondb"                      # DB 이름 / DB name
+  db_username         = "admin"                             # DB 관리자 사용자 이름 / DB admin username
+  db_password         = var.db_password                     # DB 비밀번호 / DB password (변수로 관리)
+  instance_count      = var.aurora_instance_count           # 인스턴스 개수 / Number of instances
+  instance_class      = "db.r6g.large"                      # DB 인스턴스 클래스 / DB instance class
+  engine_version      = var.aurora_engine_version           # 최신 Aurora 엔진 버전 / Aurora engine version
+  subnet_ids          = module.vpc.db_subnet_ids            # DB 서브넷 / DB subnets
+  security_group_ids  = [module.security_groups.db_security_group_id] # DB 보안 그룹 / DB security group
+  cluster_tags        = var.common_tags                     # 공통 태그 / Common tags
+}
+

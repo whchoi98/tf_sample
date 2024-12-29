@@ -60,3 +60,24 @@ variable "stack_name" {
 #  description = "IAM Instance Profile ARN" # IAM 인스턴스 프로파일 ARN
 #  type        = string                     # 문자열 타입 / String type
 #}
+
+# Aurora DB 비밀번호 / Aurora DB Password
+variable "db_password" {
+  description = "The master password for the Aurora database"
+  type        = string
+  sensitive   = true
+}
+
+# Aurora 인스턴스 개수 / Aurora Instance Count
+variable "aurora_instance_count" {
+  description = "The number of Aurora DB instances"
+  type        = number
+  default     = 3
+}
+
+# Aurora 엔진 버전 / Aurora Engine Version
+variable "aurora_engine_version" {
+  description = "The engine version for Aurora MySQL"
+  type        = string
+  default     = "8.0.mysql_aurora.3.03.0"  # 최신 엔진 버전
+}
