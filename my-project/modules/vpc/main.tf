@@ -16,7 +16,7 @@ resource "aws_vpc" "main" {
 # VPC와 연결된 인터넷 게이트웨이를 생성합니다.
 # Creates an Internet Gateway associated with the VPC.
 resource "aws_internet_gateway" "main" {
-  vpc_id = var.vpc_id # 연결된 VPC ID / Associated VPC ID
+  vpc_id = aws_vpc.main.id # 연결된 VPC ID / Associated VPC ID
   tags   = {
     Name        = "${var.name}-igw"      # 인터넷 게이트웨이 이름 태그 / Internet Gateway name tag
     Environment = var.environment        # 환경 태그 / Environment tag
@@ -44,6 +44,7 @@ resource "aws_eip" "nat" {
 resource "aws_nat_gateway" "main" {
   allocation_id = aws_eip.nat.id # NAT Gateway에 연결된 Elastic IP / Elastic IP associated with the NAT Gateway
   subnet_id     = var.public_subnet_ids[0] # A Zone의 Public Subnet ID / Public Subnet ID in Zone A
+  depends_on    = [aws_internet_gateway.main]
   tags          = {
     Name        = "${var.name}-nat-gateway" # NAT Gateway 이름 태그 / NAT Gateway name tag
     Environment = var.environment           # 환경 태그 / Environment tag
