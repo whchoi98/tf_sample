@@ -11,6 +11,15 @@ resource "aws_vpc" "main" {
     Environment = var.environment
   }
 }
+# Internet Gateway 생성
+resource "aws_internet_gateway" "main" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name        = "${var.name}-internet-gateway"
+    Environment = var.environment
+  }
+}
 
 # 퍼블릭 서브넷 / Public Subnets
 # VPC에 퍼블릭 서브넷을 생성합니다.
@@ -94,7 +103,7 @@ resource "aws_nat_gateway" "main" {
   allocation_id = aws_eip.nat.id
   subnet_id     = aws_subnet.public[0].id
   depends_on = [aws_internet_gateway.main] # Internet Gateway 생성 후 NAT Gateway 생성
-    
+
   tags = {
     Name        = "${var.name}-nat-gateway"
     Environment = var.environment
