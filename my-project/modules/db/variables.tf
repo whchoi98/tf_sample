@@ -93,7 +93,7 @@ variable "db_subnet_group_name" {
 # Aurora 데이터베이스 마스터 비밀번호 / Aurora Database Master Password
 # Aurora 클러스터의 마스터 비밀번호를 설정합니다.
 # Sets the master password for the Aurora database cluster.
-variable "db_password" {
+variable "master_password" {
   description = "The master password for the Aurora database" # Aurora 데이터베이스 마스터 비밀번호
   type        = string                                        # 문자열 타입 / String type
   sensitive   = true                                          # 출력 시 숨김 처리 / Hide value in output
