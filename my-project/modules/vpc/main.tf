@@ -93,6 +93,8 @@ resource "aws_subnet" "elasticache" {
 resource "aws_nat_gateway" "main" {
   allocation_id = aws_eip.nat.id
   subnet_id     = aws_subnet.public[0].id
+  depends_on = [aws_internet_gateway.main] # Internet Gateway 생성 후 NAT Gateway 생성
+    
   tags = {
     Name        = "${var.name}-nat-gateway"
     Environment = var.environment
