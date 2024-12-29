@@ -27,3 +27,9 @@ output "instance_ids" {
   description = "The IDs of the Aurora MySQL instances"
   value       = [for instance in aws_rds_cluster_instance.instances : instance.id]
 }
+
+# Aurora 클러스터 ARN / Aurora Cluster ARN
+output "cluster_arn" {
+  description = "The ARN of the Aurora cluster" # Aurora 클러스터 ARN
+  value       = aws_rds_cluster.aurora.arn
+}
