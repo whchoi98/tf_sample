@@ -79,5 +79,5 @@ variable "aurora_instance_count" {
 variable "aurora_engine_version" {
   description = "The engine version for Aurora MySQL"
   type        = string
-  default     = "8.0.mysql_aurora.3.03.0"  # 최신 엔진 버전
+  default     = "8.0.mysql_aurora.3.05.2"  # 최신 엔진 버전
 }
