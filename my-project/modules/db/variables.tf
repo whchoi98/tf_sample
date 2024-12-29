@@ -21,7 +21,7 @@ variable "common_tags" {
 variable "engine_version" {
   description = "The engine version of Aurora MySQL" # Aurora MySQL 엔진 버전
   type        = string                               # 문자열 타입 / String type
-  default     = "8.0.mysql_aurora.3.05.2"         # 기본 버전 / Default version
+  default     = "8.0.mysql_aurora.3.06.0"         # 기본 버전 / Default version
 }
 
 # 데이터베이스 이름 / Database Name
