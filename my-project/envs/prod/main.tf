@@ -202,7 +202,7 @@ module "aurora" {
   instance_class         = "db.r6g.large"                      # 인스턴스 클래스 / Instance class
   db_subnet_ids          = module.vpc.db_subnet_ids            # DB 서브넷 ID / DB subnet IDs
   db_subnet_group_name   = "prod-aurora-subnet-group"          # DB 서브넷 그룹 이름 / DB subnet group name
-  vpc_security_group_ids = [module.security_groups.db_security_group_id] # VPC 보안 그룹 ID / VPC security group IDs
+  vpc_security_group_ids = module.security_groups.aurora_security_group_id # VPC 보안 그룹 ID / VPC security group IDs
   backup_retention_period = 7                                  # 백업 보관 기간 (일) / Backup retention period (in days)
   preferred_backup_window = "07:00-09:00"                      # 선호 백업 시간 / Preferred backup time
   publicly_accessible    = false                               # 퍼블릭 액세스 설정 / Publicly accessible
