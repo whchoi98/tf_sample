@@ -30,13 +30,6 @@ variable "master_username" {
   type        = string
 }
 
-# Master Password
-variable "master_password" {
-  description = "The master password for the Aurora cluster"
-  type        = string
-  sensitive   = true
-}
-
 # Backup Retention Period
 variable "backup_retention_period" {
   description = "The number of days to retain backups"
