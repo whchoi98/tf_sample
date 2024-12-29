@@ -25,6 +25,7 @@ resource "aws_rds_cluster" "aurora" {
   vpc_security_group_ids  = var.vpc_security_group_ids
   storage_encrypted       = true
   apply_immediately       = true
+  skip_final_snapshot     = true
 
   tags = merge(
     var.common_tags,
