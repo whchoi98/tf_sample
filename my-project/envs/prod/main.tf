@@ -54,6 +54,9 @@ module "routing" {
   public_subnet_ids   = module.vpc.public_subnet_ids  # 퍼블릭 서브넷 ID / Public subnet IDs
   private_subnet_ids  = module.vpc.private_subnet_ids # 프라이빗 서브넷 ID / Private subnet IDs
   attach_subnet_ids   = module.vpc.attach_subnet_ids  # 어태치 서브넷 ID / Attach subnet IDs
+  elasticache_subnet_ids = module.vpc.elasticache_subnet_ids # ElastiCache 서브넷 ID 목록 / List of ElastiCache subnet IDs
+  db_subnet_ids          = module.vpc.db_subnet_ids         # DB 서브넷 ID 목록 / List of DB subnet IDs
+  nat_gateway_id         = module.vpc.nat_gateway_id        # NAT 게이트웨이 ID / NAT Gateway ID
 }
 
 # 보안 그룹 모듈 호출 / Call the Security Group module
