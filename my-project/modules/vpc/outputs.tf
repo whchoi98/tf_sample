@@ -46,7 +46,6 @@ output "elasticache_subnet_ids" {
   value       = aws_subnet.elasticache[*].id
 }
 
-
 # Output: DB 서브넷 ID / DB Subnet IDs
 output "db_subnet_ids" {
   description = "The IDs of the DB subnets"
