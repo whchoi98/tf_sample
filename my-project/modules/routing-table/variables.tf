@@ -45,3 +45,30 @@ variable "attach_subnet_ids" {
   description = "The IDs of the attach subnets" # Attach 서브넷 ID 목록
   type        = list(string)                   # 문자열 리스트 타입 / List of strings
 }
+
+# DB 서브넷 ID 변수 / DB Subnet IDs Variable
+# DB 서브넷의 ID 목록을 정의합니다.
+# Defines the IDs of the DB subnets.
+variable "db_subnet_ids" {
+  description = "The IDs of the DB subnets" # DB 서브넷 ID 목록
+  type        = list(string)               # 문자열 리스트 타입 / List of strings
+  default     = ["subnet-db123", "subnet-db456", "subnet-db789"] # 예제 기본값 / Example default values
+}
+
+# ElastiCache 서브넷 ID 변수 / ElastiCache Subnet IDs Variable
+# ElastiCache 서브넷의 ID 목록을 정의합니다.
+# Defines the IDs of the ElastiCache subnets.
+variable "elasticache_subnet_ids" {
+  description = "The IDs of the ElastiCache subnets" # ElastiCache 서브넷 ID 목록
+  type        = list(string)                        # 문자열 리스트 타입 / List of strings
+  default     = ["subnet-ec123", "subnet-ec456", "subnet-ec789"] # 예제 기본값 / Example default values
+}
+
+# NAT Gateway ID 변수 / NAT Gateway ID Variable
+# NAT Gateway의 ID를 정의합니다.
+# Defines the ID of the NAT Gateway.
+variable "nat_gateway_id" {
+  description = "The ID of the NAT Gateway" # NAT Gateway ID
+  type        = string                     # 문자열 타입 / String type
+  default     = "nat-0123456789abcdef"     # 예제 기본값 / Example default value
+}
