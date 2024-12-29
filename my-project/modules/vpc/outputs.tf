@@ -38,14 +38,6 @@ output "attach_subnet_ids" {
   value       = aws_subnet.attach[*].id
 }
 
-# Output: NAT Gateway ID / NAT 게이트웨이 ID
-# 생성된 NAT 게이트웨이의 ID를 출력합니다.
-# Outputs the ID of the created NAT Gateway.
-output "nat_gateway_id" {
-  description = "The ID of the NAT Gateway" # NAT 게이트웨이 ID
-  value       = aws_nat_gateway.main.id    # NAT 게이트웨이의 ID / NAT Gateway ID
-}
-
 # Output: ElastiCache 서브넷 ID / ElastiCache Subnet IDs
 # 생성된 ElastiCache 서브넷의 ID 목록을 출력합니다.
 # Outputs the IDs of the created ElastiCache subnets.
