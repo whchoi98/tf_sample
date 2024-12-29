@@ -34,10 +34,10 @@ variable "azs" {
 # NAT Gateway ID 변수 / NAT Gateway ID Variable
 # NAT Gateway의 ID를 정의합니다.
 # Defines the ID of the NAT Gateway.
-variable "nat_gateway_id" {
-  description = "The ID of the NAT Gateway" # NAT Gateway ID
-  type        = string                     # 문자열 타입 / String type
-}
+#variable "nat_gateway_id" {
+#  description = "The ID of the NAT Gateway" # NAT Gateway ID
+#  type        = string                     # 문자열 타입 / String type
+#}
 
 # VPC CIDR / VPC CIDR Block
 # VPC의 CIDR 블록을 정의합니다.
