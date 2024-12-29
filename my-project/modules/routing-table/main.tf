@@ -17,7 +17,7 @@ resource "aws_route" "public_route" {
   count                 = length(var.public_subnet_ids)  # 퍼블릭 서브넷 개수만큼 라우트 생성 / Creates routes for each Public Subnet
   route_table_id        = aws_route_table.public[count.index].id # 연결된 Route Table ID / Associated Route Table ID
   destination_cidr_block = "0.0.0.0/0"                   # 기본 라우트 (인터넷으로 트래픽 전달) / Default route (traffic to the internet)
-  gateway_id            = var.gateway_id   # 인터넷 게이트웨이 ID / Internet Gateway ID
+  gateway_id            = var.internet_gateway_id   # 인터넷 게이트웨이 ID / Internet Gateway ID
 }
 
 # 퍼블릭 서브넷에 Route Table 연결 / Associate Route Tables with Public Subnets

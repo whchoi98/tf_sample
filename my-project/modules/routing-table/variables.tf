@@ -69,3 +69,8 @@ variable "nat_gateway_id" {
   description = "The ID of the NAT Gateway" # NAT Gateway ID
   type        = string                     # 문자열 타입 / String type
 }
+
+variable "internet_gateway_id" {
+  description = "The ID of the Internet Gateway"
+  type        = string
+}
