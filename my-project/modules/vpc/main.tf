@@ -24,8 +24,17 @@ resource "aws_internet_gateway" "main" {
 }
 
 # NAT Gateway 생성 / Create NAT Gateway
-# 인터넷에 액세스할 수 있도록 NAT 게이트웨이를 생성합니다.
-# Creates a NAT Gateway for private subnet internet access.
+# A Zone의 Public Subnet을 사용하여 NAT 게이트웨이를 생성합니다.
+# Creates a NAT Gateway using a Public Subnet in Zone A.
+resource "aws_nat_gateway" "main" {
+  allocation_id = aws_eip.nat.id # NAT Gateway에 연결된 Elastic IP / Elastic IP associated with the NAT Gateway
+  subnet_id     = var.public_subnet_ids[0] # A Zone의 Public Subnet ID / Public Subnet ID in Zone A
+  depends_on    = [aws_internet_gateway.main]
+  tags          = {
+    Name        = "${var.name}-nat-gateway" # NAT Gateway 이름 태그 / NAT Gateway name tag
+    Environment = var.environment           # 환경 태그 / Environment tag
+  }
+}
 
 # Elastic IP 생성 / Create Elastic IP
 # NAT Gateway에 사용할 Elastic IP를 생성합니다.
@@ -38,18 +47,6 @@ resource "aws_eip" "nat" {
   }
 }
 
-# NAT Gateway 생성 / Create NAT Gateway
-# A Zone의 Public Subnet을 사용하여 NAT 게이트웨이를 생성합니다.
-# Creates a NAT Gateway using a Public Subnet in Zone A.
-resource "aws_nat_gateway" "main" {
-  allocation_id = aws_eip.nat.id # NAT Gateway에 연결된 Elastic IP / Elastic IP associated with the NAT Gateway
-  subnet_id     = var.public_subnet_ids[0] # A Zone의 Public Subnet ID / Public Subnet ID in Zone A
-  depends_on    = [aws_internet_gateway.main]
-  tags          = {
-    Name        = "${var.name}-nat-gateway" # NAT Gateway 이름 태그 / NAT Gateway name tag
-    Environment = var.environment           # 환경 태그 / Environment tag
-  }
-}
 # 퍼블릭 서브넷 / Public Subnets
 # VPC에 퍼블릭 서브넷을 생성합니다.
 # Creates public subnets in the VPC.

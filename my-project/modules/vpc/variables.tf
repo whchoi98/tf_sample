@@ -47,7 +47,6 @@ variable "cidr" {
   type        = string
 }
 
-
 # 이름 접두사 / Name Prefix
 # VPC 및 서브넷 이름에 사용할 접두사를 정의합니다.
 # Defines the name prefix for VPC and subnets.
